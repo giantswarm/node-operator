@@ -30,12 +30,14 @@ func New(config Config) (*Endpoint, error) {
 
 	var healthzEndpoint *healthz.Endpoint
 	{
-		healthzConfig := healthz.DefaultConfig()
-		healthzConfig.Logger = config.Logger
-		healthzConfig.Services = []healthzservice.Service{
+		c := healthz.Config{}
+
+		c.Logger = config.Logger
+		c.Services = []healthzservice.Service{
 			config.Service.Healthz.K8s,
 		}
-		healthzEndpoint, err = healthz.New(healthzConfig)
+
+		healthzEndpoint, err = healthz.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -43,10 +45,12 @@ func New(config Config) (*Endpoint, error) {
 
 	var versionEndpoint *version.Endpoint
 	{
-		versionConfig := version.DefaultConfig()
-		versionConfig.Logger = config.Logger
-		versionConfig.Service = config.Service.Version
-		versionEndpoint, err = version.New(versionConfig)
+		c := version.Config{}
+
+		c.Logger = config.Logger
+		c.Service = config.Service.Version
+
+		versionEndpoint, err = version.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
