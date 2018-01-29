@@ -44,10 +44,12 @@ func New(config Config) (microserver.Server, error) {
 
 	var middlewareCollection *middleware.Middleware
 	{
-		middlewareConfig := middleware.DefaultConfig()
-		middlewareConfig.Logger = config.MicroServerConfig.Logger
-		middlewareConfig.Service = config.Service
-		middlewareCollection, err = middleware.New(middlewareConfig)
+		c := middleware.Config{}
+
+		c.Logger = config.MicroServerConfig.Logger
+		c.Service = config.Service
+
+		middlewareCollection, err = middleware.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -55,11 +57,13 @@ func New(config Config) (microserver.Server, error) {
 
 	var endpointCollection *endpoint.Endpoint
 	{
-		endpointConfig := endpoint.DefaultConfig()
-		endpointConfig.Logger = config.MicroServerConfig.Logger
-		endpointConfig.Middleware = middlewareCollection
-		endpointConfig.Service = config.Service
-		endpointCollection, err = endpoint.New(endpointConfig)
+		c := endpoint.DefaultConfig()
+
+		c.Logger = config.MicroServerConfig.Logger
+		c.Middleware = middlewareCollection
+		c.Service = config.Service
+
+		endpointCollection, err = endpoint.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

@@ -25,19 +25,6 @@ type Config struct {
 	Viper       *viper.Viper
 }
 
-func DefaultConfig() Config {
-	return Config{
-		Logger: nil,
-
-		Description: "",
-		Flag:        nil,
-		GitCommit:   "",
-		Name:        "",
-		Source:      "",
-		Viper:       nil,
-	}
-}
-
 type Service struct {
 	Healthz *healthz.Service
 	Version *version.Service
