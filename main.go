@@ -19,11 +19,11 @@ import (
 )
 
 var (
-	description string     = "Project node-operator drains Kubernetes nodes on behalf of watched CRDs."
-	f           *flag.Flag = flag.New()
-	gitCommit   string     = "n/a"
-	name        string     = "node-operator"
-	source      string     = "https://github.com/giantswarm/node-operator"
+	description = "Project node-operator drains Kubernetes nodes on behalf of watched CRDs."
+	f           = flag.New()
+	gitCommit   = "n/a"
+	name        = "node-operator"
+	source      = "https://github.com/giantswarm/node-operator"
 )
 
 func main() {
