@@ -54,7 +54,7 @@ func mainWithError() error {
 		// Create a new custom service which implements business logic.
 		var newService *service.Service
 		{
-			c := service.DefaultConfig()
+			c := service.Config{}
 
 			c.Flag = f
 			c.Logger = newLogger

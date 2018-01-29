@@ -57,7 +57,7 @@ func New(config Config) (microserver.Server, error) {
 
 	var endpointCollection *endpoint.Endpoint
 	{
-		c := endpoint.DefaultConfig()
+		c := endpoint.Config{}
 
 		c.Logger = config.MicroServerConfig.Logger
 		c.Middleware = middlewareCollection
