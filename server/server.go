@@ -19,10 +19,8 @@ import (
 
 // Config represents the configuration used to create a new server object.
 type Config struct {
-	// Dependencies.
 	Service *service.Service
 
-	// Settings.
 	MicroServerConfig microserver.Config
 }
 
@@ -30,10 +28,8 @@ type Config struct {
 // by best effort.
 func DefaultConfig() Config {
 	return Config{
-		// Dependencies.
 		Service: nil,
 
-		// Settings.
 		MicroServerConfig: microserver.DefaultConfig(),
 	}
 }

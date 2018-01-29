@@ -44,16 +44,16 @@ func New(config Config) (*Service, error) {
 
 	var k8sClient kubernetes.Interface
 	{
-		k8sConfig := k8sclient.DefaultConfig()
+		c := k8sclient.DefaultConfig()
 
-		k8sConfig.Address = config.Viper.GetString(config.Flag.Service.Kubernetes.Address)
-		k8sConfig.Logger = config.Logger
-		k8sConfig.InCluster = config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster)
-		k8sConfig.TLS.CAFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile)
-		k8sConfig.TLS.CrtFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile)
-		k8sConfig.TLS.KeyFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile)
+		c.Address = config.Viper.GetString(config.Flag.Service.Kubernetes.Address)
+		c.Logger = config.Logger
+		c.InCluster = config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster)
+		c.TLS.CAFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile)
+		c.TLS.CrtFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile)
+		c.TLS.KeyFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile)
 
-		k8sClient, err = k8sclient.New(k8sConfig)
+		k8sClient, err = k8sclient.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -61,12 +61,12 @@ func New(config Config) (*Service, error) {
 
 	var healthzService *healthz.Service
 	{
-		healthzConfig := healthz.DefaultConfig()
+		c := healthz.Config{}
 
-		healthzConfig.K8sClient = k8sClient
-		healthzConfig.Logger = config.Logger
+		c.K8sClient = k8sClient
+		c.Logger = config.Logger
 
-		healthzService, err = healthz.New(healthzConfig)
+		healthzService, err = healthz.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -74,14 +74,14 @@ func New(config Config) (*Service, error) {
 
 	var versionService *version.Service
 	{
-		versionConfig := version.DefaultConfig()
+		c := version.DefaultConfig()
 
-		versionConfig.Description = config.Description
-		versionConfig.GitCommit = config.GitCommit
-		versionConfig.Name = config.Name
-		versionConfig.Source = config.Source
+		c.Description = config.Description
+		c.GitCommit = config.GitCommit
+		c.Name = config.Name
+		c.Source = config.Source
 
-		versionService, err = version.New(versionConfig)
+		versionService, err = version.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

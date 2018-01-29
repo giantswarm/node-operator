@@ -13,7 +13,6 @@ import (
 
 // Config represents the configuration used to create a endpoint.
 type Config struct {
-	// Dependencies.
 	Logger     micrologger.Logger
 	Middleware *middleware.Middleware
 	Service    *service.Service

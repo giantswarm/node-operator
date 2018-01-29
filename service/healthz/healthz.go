@@ -10,19 +10,13 @@ import (
 
 // Config represents the configuration used to create a healthz service.
 type Config struct {
-	// Dependencies.
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 }
 
-// DefaultConfig provides a default configuration to create a new healthz
-// service by best effort.
-func DefaultConfig() Config {
-	return Config{
-		// Dependencies.
-		K8sClient: nil,
-		Logger:    nil,
-	}
+// Service is the healthz service collection.
+type Service struct {
+	K8s healthz.Service
 }
 
 // New creates a new configured healthz service.
@@ -45,9 +39,4 @@ func New(config Config) (*Service, error) {
 	}
 
 	return newService, nil
-}
-
-// Service is the healthz service collection.
-type Service struct {
-	K8s healthz.Service
 }
