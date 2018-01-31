@@ -66,9 +66,28 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/apiextensions"
+  packages = [
+    "pkg/apis/core/v1alpha1",
+    "pkg/apis/provider/v1alpha1",
+    "pkg/clientset/versioned",
+    "pkg/clientset/versioned/scheme",
+    "pkg/clientset/versioned/typed/core/v1alpha1",
+    "pkg/clientset/versioned/typed/provider/v1alpha1"
+  ]
+  revision = "f0b8bcd6122deaf8be38b9705ac528cf4b749e3a"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/k8shealthz"
   packages = ["."]
   revision = "5eaeffb4476a420af88b7f95b478fc9fe2da38ac"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/kvm-operator"
+  packages = ["service/kvmconfig/v3/key"]
+  revision = "1403c8fad03442bb403ceacdca9f7b915115d189"
 
 [[projects]]
   branch = "master"
@@ -138,9 +157,11 @@
     "framework/context/resourcecanceledcontext",
     "framework/context/updateallowedcontext",
     "framework/context/updatenecessarycontext",
+    "framework/resource/metricsresource",
+    "framework/resource/retryresource",
     "informer"
   ]
-  revision = "00eb929ef9604e5037c3ed60a73bf2f4c29f6a31"
+  revision = "9447814d7a6d357450873c7f6a30d2911e4eb17e"
 
 [[projects]]
   branch = "master"
@@ -180,7 +201,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "fa03337d7da5735229ee8f5e9d5d0b996014b7f8"
+  revision = "8ed76de6feb4b8fe26d62c50fdff14a3328b4a81"
 
 [[projects]]
   branch = "master"
@@ -216,7 +237,6 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  branch = "master"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -226,6 +246,7 @@
     "ptypes/timestamp"
   ]
   revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -475,7 +496,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "ff2a66f350cefa5c93a634eadb5d25bb60c85a9c"
+  revision = "3dbebcf8efb6a5011a60c2b4591c1022a759af8a"
 
 [[projects]]
   branch = "master"
@@ -651,11 +672,11 @@
   branch = "master"
   name = "k8s.io/kube-openapi"
   packages = ["pkg/common"]
-  revision = "a07b7bbb58e7fdc5144f8d7046331d29fc9ad3b3"
+  revision = "ebe1c38352a6121e0446d4fa098e76a528921e0c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "afe95602787f906cf1b425cb6d4a18dff7cb69cb77d1231e4949ebd482217970"
+  inputs-digest = "fb878e203e7cc208f21ca0958c08a6815ee1c28051b6e5435011d50865213ad1"
   solver-name = "gps-cdcl"
   solver-version = 1
