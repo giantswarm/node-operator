@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/kvm-operator/service/kvmconfig/v2/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -16,14 +17,15 @@ const (
 	ResourceRetries uint64 = 3
 )
 
-type ResourcesConfig struct {
+type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	Name string
+	HandledVersionBundles []string
+	Name                  string
 }
 
-func NewResources(config ResourcesConfig) ([]framework.Resource, error) {
+func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -77,5 +79,35 @@ func NewResources(config ResourcesConfig) ([]framework.Resource, error) {
 		}
 	}
 
-	return resources, nil
+	handlesFunc := func(obj interface{}) bool {
+		customObject, err := key.ToCustomObject(obj)
+		if err != nil {
+			return false
+		}
+		versionBundleVersion := key.VersionBundleVersion(customObject)
+
+		for _, v := range config.HandledVersionBundles {
+			if versionBundleVersion == v {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	var resourceSet *framework.ResourceSet
+	{
+		c := framework.ResourceSetConfig{}
+
+		c.Handles = handlesFunc
+		c.Logger = config.Logger
+		c.Resources = resources
+
+		resourceSet, err = framework.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return resourceSet, nil
 }
