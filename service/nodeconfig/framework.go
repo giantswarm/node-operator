@@ -12,7 +12,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/service/nodeconfig/v1"
-	v1key "github.com/giantswarm/node-operator/service/nodeconfig/v1/key"
 )
 
 type FrameworkConfig struct {
@@ -57,49 +56,6 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	v1ResourceSetHandles := func(obj interface{}) bool {
-		customObject, err := v1key.ToCustomObject(obj)
-		if err != nil {
-			return false
-		}
-		versionBundleVersion := v1key.VersionBundleVersion(customObject)
-
-		if versionBundleVersion == "0.1.0" {
-			return true
-		}
-
-		return false
-	}
-
-	var v1Resources []framework.Resource
-	{
-		c := v1.ResourcesConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			Name: config.Name,
-		}
-
-		v1Resources, err = v1.NewResources(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v1ResourceSet *framework.ResourceSet
-	{
-		c := framework.ResourceSetConfig{}
-
-		c.Handles = v1ResourceSetHandles
-		c.Logger = config.Logger
-		c.Resources = v1Resources
-
-		v1ResourceSet, err = framework.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var newInformer *informer.Informer
 	{
 		c := informer.DefaultConfig()
@@ -107,6 +63,24 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		c.Watcher = config.G8sClient.CoreV1alpha1().NodeConfigs("")
 
 		newInformer, err = informer.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var v1ResourceSet *framework.ResourceSet
+	{
+		c := v1.ResourceSetConfig{}
+
+		c.K8sClient = config.K8sClient
+		c.Logger = config.Logger
+
+		c.HandledVersionBundles = []string{
+			"0.1.0",
+		}
+		c.Name = config.Name
+
+		v1ResourceSet, err = v1.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
