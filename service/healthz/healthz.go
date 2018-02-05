@@ -1,6 +1,8 @@
 package healthz
 
 import (
+	"time"
+
 	"github.com/giantswarm/k8shealthz"
 	"github.com/giantswarm/microendpoint/service/healthz"
 	"github.com/giantswarm/microerror"
@@ -25,10 +27,12 @@ func New(config Config) (*Service, error) {
 
 	var k8sService healthz.Service
 	{
-		c := k8shealthz.Config{}
+		c := k8shealthz.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 
-		c.K8sClient = config.K8sClient
-		c.Logger = config.Logger
+			Timeout: 5 * time.Second,
+		}
 
 		k8sService, err = k8shealthz.New(c)
 		if err != nil {
