@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/cenkalti/backoff"
-	"github.com/giantswarm/kvm-operator/service/kvmconfig/v2/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -10,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/node-operator/service/nodeconfig/v1/key"
 	"github.com/giantswarm/node-operator/service/nodeconfig/v1/resource/node"
 )
 
@@ -57,7 +57,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	{
-		c := retryresource.DefaultWrapConfig()
+		c := retryresource.WrapConfig{}
 
 		c.BackOffFactory = func() backoff.BackOff { return backoff.WithMaxTries(backoff.NewExponentialBackOff(), ResourceRetries) }
 		c.Logger = config.Logger
@@ -69,7 +69,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	{
-		c := metricsresource.DefaultWrapConfig()
+		c := metricsresource.WrapConfig{}
 
 		c.Name = config.Name
 

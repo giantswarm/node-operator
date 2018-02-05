@@ -102,7 +102,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 	var crdFramework *framework.Framework
 	{
-		c := framework.DefaultConfig()
+		c := framework.Config{}
 
 		c.CRD = v1alpha1.NewNodeConfigCRD()
 		c.CRDClient = crdClient
