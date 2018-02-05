@@ -5,6 +5,7 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+
 	// TODO fetch guest cluster certs
 	// TODO create k8s client for guest cluster
 	// TODO set guest cluster node unschedulable
