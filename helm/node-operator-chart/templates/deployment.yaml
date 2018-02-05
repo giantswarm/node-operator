@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-operator
+  namespace: giantswarm
+  labels:
+    app: node-operator
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: node-operator
+    spec:
+      volumes:
+      - name: node-operator-configmap
+        configMap:
+          name: node-operator-configmap
+          items:
+          - key: config.yml
+            path: config.yml
+      serviceAccountName: node-operator
+      containers:
+      - name: node-operator
+        image: quay.io/giantswarm/node-operator:[[ .SHA ]]
+        args:
+        - daemon
+        - --config.dirs=/var/run/node-operator/configmap/
+        - --config.files=config
+        volumeMounts:
+        - name: node-operator-configmap
+          mountPath: /var/run/node-operator/configmap/
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 250m
+            memory: 250Mi
+      imagePullSecrets:
+      - name: node-operator-pull-secret
