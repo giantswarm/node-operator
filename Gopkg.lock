@@ -75,19 +75,13 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "f0b8bcd6122deaf8be38b9705ac528cf4b749e3a"
+  revision = "b4a8c879d8a43fd576a76447558fff13e46fef9f"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/k8shealthz"
   packages = ["."]
   revision = "5eaeffb4476a420af88b7f95b478fc9fe2da38ac"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/giantswarm/kvm-operator"
-  packages = ["service/kvmconfig/v3/key"]
-  revision = "1403c8fad03442bb403ceacdca9f7b915115d189"
 
 [[projects]]
   branch = "master"
@@ -126,7 +120,7 @@
     "transaction/context/id",
     "transaction/context/tracked"
   ]
-  revision = "489a866095567ab6c764f79831f61e48c035629c"
+  revision = "d48ce8e1f2bd2a7b93de0d5c37ca62a648cbffe8"
 
 [[projects]]
   branch = "master"
@@ -161,13 +155,13 @@
     "framework/resource/retryresource",
     "informer"
   ]
-  revision = "9447814d7a6d357450873c7f6a30d2911e4eb17e"
+  revision = "59017b0b706ef7d1e4002591e685fa96bcf08432"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
-  revision = "5d9ca79fd134acbe53e8b67ef1e649870f02d699"
+  revision = "9172db5125f7c75ba988e26ed6571151d43c3565"
 
 [[projects]]
   name = "github.com/go-kit/kit"
@@ -201,7 +195,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "8ed76de6feb4b8fe26d62c50fdff14a3328b4a81"
+  revision = "f3499b5df53897321d6f5e9c22cf19309d41d3bc"
 
 [[projects]]
   branch = "master"
@@ -227,8 +221,8 @@
     "proto",
     "sortkeys"
   ]
-  revision = "342cbe0a04158f6dcb03ca0079991a51a4248c02"
-  version = "v0.5"
+  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -298,7 +292,7 @@
     ".",
     "simplelru"
   ]
-  revision = "0a025b7e63adc15a622f29b0b2c4c3848243bbf6"
+  revision = "0fb14efe8c47ae851c0034ed7a448854d3d34cf3"
 
 [[projects]]
   branch = "master"
@@ -372,7 +366,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
+  revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -399,7 +393,7 @@
     "prometheus",
     "prometheus/promhttp"
   ]
-  revision = "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada"
+  revision = "9bb6ab929dcbe1c8393cd9ef70387cb69811bd1c"
 
 [[projects]]
   branch = "master"
@@ -484,7 +478,7 @@
     "lex/httplex",
     "publicsuffix"
   ]
-  revision = "0ed95abb35c445290478a5348a7b38bb154135fd"
+  revision = "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1"
 
 [[projects]]
   branch = "master"
@@ -496,7 +490,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3dbebcf8efb6a5011a60c2b4591c1022a759af8a"
+  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
 
 [[projects]]
   branch = "master"
@@ -672,11 +666,11 @@
   branch = "master"
   name = "k8s.io/kube-openapi"
   packages = ["pkg/common"]
-  revision = "ebe1c38352a6121e0446d4fa098e76a528921e0c"
+  revision = "275e2ce91dec4c05a4094a7b1daee5560b555ac9"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fb878e203e7cc208f21ca0958c08a6815ee1c28051b6e5435011d50865213ad1"
+  inputs-digest = "2a1ab8b6574f4b96cd999742780ef893a767dbe04916011e8a0ab9214dc36fa6"
   solver-name = "gps-cdcl"
   solver-version = 1
