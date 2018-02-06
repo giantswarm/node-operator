@@ -24,7 +24,7 @@ required = [
 ]
 
 [[constraint]]
-  branch = "master"
+  branch = "endpoint"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
