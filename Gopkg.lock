@@ -65,7 +65,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "endpoint"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -75,7 +75,7 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "8fa1fd878bdd8512956a0aabcc81ef4816720edc"
+  revision = "dee3f4f6ca0566fc3b01d654a9668a5a6f9ad86c"
 
 [[projects]]
   branch = "master"
@@ -677,6 +677,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5d938e96fcb26ac932ffe74af35307478e249deb9026ef85cf07e4a748cd1767"
+  inputs-digest = "7642bc4df703d11405ff0f7940e611f0f974be7da4ebfa3a847975a893293c66"
   solver-name = "gps-cdcl"
   solver-version = 1
