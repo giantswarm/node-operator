@@ -3,13 +3,16 @@ package service
 import (
 	"sync"
 
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8sclient"
+	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/framework"
 	"github.com/spf13/viper"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/service/healthz"
@@ -45,21 +48,37 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var k8sClient kubernetes.Interface
+	var restConfig *rest.Config
 	{
-		c := k8sclient.DefaultConfig()
+		c := k8srestconfig.DefaultConfig()
+
+		c.Logger = config.Logger
 
 		c.Address = config.Viper.GetString(config.Flag.Service.Kubernetes.Address)
-		c.Logger = config.Logger
 		c.InCluster = config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster)
 		c.TLS.CAFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile)
 		c.TLS.CrtFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile)
 		c.TLS.KeyFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile)
 
-		k8sClient, err = k8sclient.New(c)
+		restConfig, err = k8srestconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+	}
+
+	g8sClient, err := versioned.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	var healthzService *healthz.Service
@@ -78,8 +97,10 @@ func New(config Config) (*Service, error) {
 	var nodeConfigFramework *framework.Framework
 	{
 		c := nodeconfig.FrameworkConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
+			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+			Logger:       config.Logger,
 		}
 
 		nodeConfigFramework, err = nodeconfig.NewFramework(c)
