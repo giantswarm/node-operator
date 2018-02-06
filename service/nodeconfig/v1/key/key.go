@@ -5,6 +5,10 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+func ClusterID(customObject v1alpha1.NodeConfig) string {
+	return customObject.Spec.Guest.ID
+}
+
 func ToCustomObject(v interface{}) (v1alpha1.NodeConfig, error) {
 	p, ok := v.(*v1alpha1.NodeConfig)
 	if !ok {
