@@ -7,11 +7,13 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8sclient"
+	"github.com/giantswarm/operatorkit/framework"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/service/healthz"
+	"github.com/giantswarm/node-operator/service/nodeconfig"
 )
 
 type Config struct {
@@ -26,8 +28,9 @@ type Config struct {
 }
 
 type Service struct {
-	Healthz *healthz.Service
-	Version *version.Service
+	Healthz             *healthz.Service
+	NodeConfigFramework *framework.Framework
+	Version             *version.Service
 
 	bootOnce sync.Once
 }
@@ -72,6 +75,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var nodeConfigFramework *framework.Framework
+	{
+		c := nodeconfig.FrameworkConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		nodeConfigFramework, err = nodeconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		c := version.DefaultConfig()
@@ -88,8 +104,9 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		Healthz: healthzService,
-		Version: versionService,
+		Healthz:             healthzService,
+		NodeConfigFramework: nodeConfigFramework,
+		Version:             versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -99,5 +116,6 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
+		go s.NodeConfigFramework.Boot()
 	})
 }
