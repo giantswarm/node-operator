@@ -43,8 +43,8 @@
     ".",
     "log"
   ]
-  revision = "2dd44038f0b95ae693b266c5f87593b5d2fdd78d"
-  version = "v2.5.0"
+  revision = "26b41036311f2da8242db402557a0dbd09dc83da"
+  version = "v2.6.0"
 
 [[projects]]
   name = "github.com/emicklei/go-restful-swagger12"
@@ -75,13 +75,19 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "b4a8c879d8a43fd576a76447558fff13e46fef9f"
+  revision = "0d4a90a1e4205dfcffb8c7f8fac3969c7f53ed64"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/certs"
+  packages = ["."]
+  revision = "cb5abd709cb670baae7fbbf0699c5545771ef393"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/k8shealthz"
   packages = ["."]
-  revision = "5eaeffb4476a420af88b7f95b478fc9fe2da38ac"
+  revision = "9abe467ab9085610b261319dfe875c6d13537b06"
 
 [[projects]]
   branch = "master"
@@ -671,6 +677,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2a1ab8b6574f4b96cd999742780ef893a767dbe04916011e8a0ab9214dc36fa6"
+  inputs-digest = "922c3f23f4caae41c9e05cc769257b53fbedd113b563674b98ce36f2516e5358"
   solver-name = "gps-cdcl"
   solver-version = 1

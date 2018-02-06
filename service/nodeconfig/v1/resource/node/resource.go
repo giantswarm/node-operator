@@ -1,6 +1,7 @@
 package node
 
 import (
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -12,16 +13,21 @@ const (
 )
 
 type Config struct {
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	CertsSearcher certs.Interface
+	K8sClient     kubernetes.Interface
+	Logger        micrologger.Logger
 }
 
 type Resource struct {
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	certsSearcher certs.Interface
+	k8sClient     kubernetes.Interface
+	logger        micrologger.Logger
 }
 
 func New(c Config) (*Resource, error) {
+	if c.CertsSearcher == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CertsSearcher must not be empty", c)
+	}
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
@@ -30,7 +36,8 @@ func New(c Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient: c.K8sClient,
+		certsSearcher: c.CertsSearcher,
+		k8sClient:     c.K8sClient,
 		logger: c.Logger.With(
 			"resource", Name,
 		),

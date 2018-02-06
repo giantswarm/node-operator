@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -39,10 +40,24 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 	var err error
 
+	var certsSearcher certs.Interface
+	{
+		c := certs.DefaultConfig()
+
+		c.K8sClient = config.K8sClient
+		c.Logger = config.Logger
+
+		certsSearcher, err = certs.NewSearcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var nodeResource framework.Resource
 	{
 		c := node.Config{}
 
+		c.CertsSearcher = certsSearcher
 		c.K8sClient = config.K8sClient
 		c.Logger = config.Logger
 
