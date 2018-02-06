@@ -5,8 +5,12 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+func ClusterAPIEndpoint(customObject v1alpha1.NodeConfig) string {
+	return customObject.Spec.Guest.Cluster.API.Endpoint
+}
+
 func ClusterID(customObject v1alpha1.NodeConfig) string {
-	return customObject.Spec.Guest.ID
+	return customObject.Spec.Guest.Cluster.ID
 }
 
 func ToCustomObject(v interface{}) (v1alpha1.NodeConfig, error) {
