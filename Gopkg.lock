@@ -75,7 +75,7 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "0d4a90a1e4205dfcffb8c7f8fac3969c7f53ed64"
+  revision = "dee3f4f6ca0566fc3b01d654a9668a5a6f9ad86c"
 
 [[projects]]
   branch = "master"
@@ -150,8 +150,8 @@
   branch = "master"
   name = "github.com/giantswarm/operatorkit"
   packages = [
-    "client/k8sclient",
     "client/k8scrdclient",
+    "client/k8srestconfig",
     "framework",
     "framework/context/reconciliationcanceledcontext",
     "framework/context/resourcecanceledcontext",
@@ -677,6 +677,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "922c3f23f4caae41c9e05cc769257b53fbedd113b563674b98ce36f2516e5358"
+  inputs-digest = "7642bc4df703d11405ff0f7940e611f0f974be7da4ebfa3a847975a893293c66"
   solver-name = "gps-cdcl"
   solver-version = 1

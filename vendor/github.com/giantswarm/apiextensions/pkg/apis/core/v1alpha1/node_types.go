@@ -61,9 +61,19 @@ type NodeConfigSpec struct {
 }
 
 type NodeConfigSpecGuest struct {
+	Cluster NodeConfigSpecGuestCluster `json:"cluster" yaml:"cluster"`
+	Node    NodeConfigSpecGuestNode    `json:"node" yaml:"node"`
+}
+
+type NodeConfigSpecGuestCluster struct {
+	API NodeConfigSpecGuestClusterAPI `json:"api" yaml:"api"`
 	// ID is the guest cluster ID of which a node should be drained.
-	ID   string                  `json:"id" yaml:"id"`
-	Node NodeConfigSpecGuestNode `json:"node" yaml:"node"`
+	ID string `json:"id" yaml:"id"`
+}
+
+type NodeConfigSpecGuestClusterAPI struct {
+	// Endpoint is the guest cluster API endpoint.
+	Endpoint string `json:"endpoint" yaml:"endpoint"`
 }
 
 type NodeConfigSpecGuestNode struct {
