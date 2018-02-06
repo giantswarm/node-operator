@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/azure-operator/service/key"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/node-operator/service/nodeconfig/v1/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
