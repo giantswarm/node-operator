@@ -65,7 +65,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "id"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -75,52 +75,13 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "07fe98df45ea39db06ddd15fad93c36723978eb2"
-
-[[projects]]
-  branch = "multi_master"
-  name = "github.com/giantswarm/azure-operator"
-  packages = ["service/key"]
-  revision = "24e2fe225987829c431ef1c4eb486d2022d33658"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/giantswarm/azuretpr"
-  packages = [
-    ".",
-    "spec",
-    "spec/azure",
-    "spec/azure/node"
-  ]
-  revision = "dbc76d469018be7f31cd554d04d68e4a3d2888d6"
-
-[[projects]]
-  branch = "clientgo-v3"
-  name = "github.com/giantswarm/certificatetpr"
-  packages = ["."]
-  revision = "57a4fcbb8839e8da7940bf4e27e52396a4ead7c5"
+  revision = "0d4a90a1e4205dfcffb8c7f8fac3969c7f53ed64"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "cb5abd709cb670baae7fbbf0699c5545771ef393"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/giantswarm/clustertpr"
-  packages = [
-    ".",
-    "spec",
-    "spec/docker",
-    "spec/kubernetes",
-    "spec/kubernetes/hyperkube",
-    "spec/kubernetes/ingress",
-    "spec/kubernetes/kubectl",
-    "spec/kubernetes/networksetup",
-    "spec/kubernetes/ssh"
-  ]
-  revision = "6b89a787f157c5531d1c955c32b3c621f0d64c3a"
 
 [[projects]]
   branch = "master"
@@ -716,6 +677,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f3dfd7ce655228467363bb7c88e30c23ebeb8b0485b35d021f5de4f2bbc7239f"
+  inputs-digest = "922c3f23f4caae41c9e05cc769257b53fbedd113b563674b98ce36f2516e5358"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -61,6 +61,7 @@ type NodeConfigSpec struct {
 }
 
 type NodeConfigSpecGuest struct {
+	// ID is the guest cluster ID of which a node should be drained.
 	ID   string                  `json:"id" yaml:"id"`
 	Node NodeConfigSpecGuestNode `json:"node" yaml:"node"`
 }

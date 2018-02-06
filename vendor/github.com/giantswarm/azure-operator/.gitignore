@@ -1,6 +1,0 @@
-azure-operator
-TODO
-!vendor/**
-
-/examples/local/*.yaml
-!/examples/local/*.tmpl.yaml
