@@ -26,7 +26,7 @@ type Resource struct {
 
 func New(c Config) (*Resource, error) {
 	if c.CertsSearcher == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T must not be empty", c.CertsSearcher)
+		return nil, microerror.Maskf(invalidConfigError, "%T.CertsSearcher must not be empty", c)
 	}
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
