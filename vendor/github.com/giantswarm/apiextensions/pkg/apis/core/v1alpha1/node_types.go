@@ -61,6 +61,7 @@ type NodeConfigSpec struct {
 }
 
 type NodeConfigSpecGuest struct {
+	ID   string                  `json:"id" yaml:"id"`
 	Node NodeConfigSpecGuestNode `json:"node" yaml:"node"`
 }
 
