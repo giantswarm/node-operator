@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"fmt"
-
 	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
@@ -54,13 +52,12 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-	fmt.Printf("%#v\n", certsSearcher)
 
 	var nodeResource framework.Resource
 	{
 		c := node.Config{}
 
-		//c.CertsSearcher = certsSearcher
+		c.CertsSearcher = certsSearcher
 		c.K8sClient = config.K8sClient
 		c.Logger = config.Logger
 
