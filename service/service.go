@@ -101,6 +101,8 @@ func New(config Config) (*Service, error) {
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
 			Logger:       config.Logger,
+
+			Name: config.Name,
 		}
 
 		nodeConfigFramework, err = nodeconfig.NewFramework(c)
