@@ -7,10 +7,17 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/node-operator/service/nodeconfig/v1/key"
+)
+
+const (
+	// UnschedulablePatch is the JSON patch structure being applied to nodes using
+	// a strategic merge patch in order to drain them.
+	UnschedulablePatch = `{"spec":{"unschedulable":true}}`
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -47,13 +54,35 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	nodes, err := k8sClient.CoreV1().Nodes().List(apismetav1.ListOptions{})
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	{
+		n := key.NodeName(customObject)
+		t := types.StrategicMergePatchType
+		p := []byte(UnschedulablePatch)
 
-	for _, n := range nodes.Items {
-		fmt.Printf("%#v\n", n)
+		{
+			manifest, err := k8sClient.CoreV1().Nodes().Get(n, apismetav1.GetOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			fmt.Printf("unschedulable\n")
+			fmt.Printf("%#v\n", manifest.Spec.Unschedulable)
+			fmt.Printf("unschedulable\n")
+		}
+
+		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		{
+			manifest, err := k8sClient.CoreV1().Nodes().Get(n, apismetav1.GetOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			fmt.Printf("unschedulable\n")
+			fmt.Printf("%#v\n", manifest.Spec.Unschedulable)
+			fmt.Printf("unschedulable\n")
+		}
 	}
 
 	// TODO set guest cluster node unschedulable
