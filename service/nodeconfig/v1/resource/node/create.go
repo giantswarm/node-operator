@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	// UnschedulablePatch is the JSON patch structure being applied to nodes using
+	// a strategic merge patch in order to drain them.
 	UnschedulablePatch = `{"spec":{"unschedulable":true}}`
 )
 
