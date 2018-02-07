@@ -124,6 +124,7 @@ func mainWithError() error {
 		c.GitCommit = gitCommit
 		c.Name = name
 		c.Source = source
+		c.VersionBundles = service.NewVersionBundles()
 
 		newCommand, err = command.New(c)
 		if err != nil {
