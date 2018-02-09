@@ -81,20 +81,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		customPods = filterPods(podList.Items, func(p v1.Pod) bool {
-			if p.GetNamespace() == "kube-system" {
-				return false
-			}
+		var customPods, systemPods []v1.Pod
 
-			return true
-		})
-		systemPods = filterPods(podList.Items, func(p v1.Pod) bool {
+		for _, p := range podList.Items {
 			if p.GetNamespace() == "kube-system" {
-				return true
+				systemPods = append(systemPods, p)
+			} else {
+				customPods = append(customPods, p)
 			}
-
-			return false
-		})
+		}
 	}
 
 	{
@@ -119,16 +114,4 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	// TODO delete CRO
 
 	return nil
-}
-
-func filterPods(oldList []v1.Pod, filterFunc func(v1.Pod) bool) []v1.Pod {
-	var newList []v1.Pod
-
-	for _, p := range oldList {
-		if filterFunc(p) {
-			newList = append(newList, p)
-		}
-	}
-
-	return newList
 }
