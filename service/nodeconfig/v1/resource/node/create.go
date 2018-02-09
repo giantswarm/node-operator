@@ -73,17 +73,23 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeName(customObject),
 		})
+		fmt.Printf("fieldSelector: %#v\n", fieldSelector)
 		listOptions := apismetav1.ListOptions{
 			FieldSelector: fieldSelector.String(),
 		}
+		fmt.Printf("listOptions: %#v\n", listOptions)
 		podList, err := k8sClient.CoreV1().Pods(v1.NamespaceAll).List(listOptions)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+		fmt.Printf("podList: %#v\n", podList)
+		fmt.Printf("podList.Items: %#v\n", podList.Items)
 
 		var customPods, systemPods []v1.Pod
 
 		for _, p := range podList.Items {
+			fmt.Printf("p: %#v\n", p)
+			fmt.Printf("p.GetNamespace(): %#v\n", p.GetNamespace())
 			if p.GetNamespace() == "kube-system" {
 				systemPods = append(systemPods, p)
 			} else {
