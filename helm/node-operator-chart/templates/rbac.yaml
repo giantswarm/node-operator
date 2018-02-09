@@ -26,6 +26,7 @@ rules:
       - core.giantswarm.io
     resources:
       - storageconfigs
+      - nodeconfigs
     verbs:
       - "*"
   - apiGroups:
