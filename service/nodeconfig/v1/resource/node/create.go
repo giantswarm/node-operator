@@ -81,12 +81,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		var customPods, systemPods []v1.Pod
-
 		for _, p := range podList.Items {
 			if p.GetNamespace() == "kube-system" {
+				fmt.Printf("systemPods: %#v\n", p.GetName())
 				systemPods = append(systemPods, p)
 			} else {
+				fmt.Printf("customPods: %#v\n", p.GetName())
 				customPods = append(customPods, p)
 			}
 		}
@@ -98,16 +98,16 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		for _, p := range customPods {
 			fmt.Printf("%#v\n", p)
 		}
-		fmt.Printf("\n")
 		fmt.Printf("customPods\n")
+		fmt.Printf("\n")
 
 		fmt.Printf("\n")
 		fmt.Printf("systemPods\n")
 		for _, p := range systemPods {
 			fmt.Printf("%#v\n", p)
 		}
-		fmt.Printf("\n")
 		fmt.Printf("systemPods\n")
+		fmt.Printf("\n")
 	}
 
 	// TODO delete all pods running on guest cluster node
