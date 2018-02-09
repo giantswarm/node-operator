@@ -10,29 +10,9 @@ rules:
     verbs:
       - "*"
   - apiGroups:
-      - extensions
-    resources:
-      - thirdpartyresources
-    verbs:
-      - "*"
-  - apiGroups:
-      - extensions
-    resources:
-      - deployments
-      - ingresses
-    verbs:
-      - "*"
-  - apiGroups:
       - core.giantswarm.io
     resources:
-      - storageconfigs
       - nodeconfigs
-    verbs:
-      - "*"
-  - apiGroups:
-      - provider.giantswarm.io
-    resources:
-      - kvmconfigs
     verbs:
       - "*"
   - apiGroups:
@@ -43,32 +23,8 @@ rules:
       - serviceaccounts
     verbs:
       - get
-      - create
-      - delete
-      - list
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - get
-  - apiGroups:
-      - ""
-    resources:
-      - endpoints
-      - services
-    verbs:
-      - get 
       - list
       - watch
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - watch
-      - update
   - apiGroups:
       - ""
     resources:
@@ -76,12 +32,6 @@ rules:
     verbs:
       - get
       - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - "*"
   - nonResourceURLs:
       - "/"
       - "/healthz"
