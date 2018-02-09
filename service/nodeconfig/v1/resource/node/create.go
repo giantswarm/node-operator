@@ -73,26 +73,20 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeName(customObject),
 		})
-		fmt.Printf("fieldSelector: %#v\n", fieldSelector)
 		listOptions := apismetav1.ListOptions{
 			FieldSelector: fieldSelector.String(),
 		}
-		fmt.Printf("listOptions: %#v\n", listOptions)
 		podList, err := k8sClient.CoreV1().Pods(v1.NamespaceAll).List(listOptions)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		fmt.Printf("podList: %#v\n", podList)
-		fmt.Printf("podList.Items: %#v\n", podList.Items)
-
-		var customPods, systemPods []v1.Pod
 
 		for _, p := range podList.Items {
-			fmt.Printf("p: %#v\n", p)
-			fmt.Printf("p.GetNamespace(): %#v\n", p.GetNamespace())
 			if p.GetNamespace() == "kube-system" {
+				fmt.Printf("systemPods: %#v\n", p.GetName())
 				systemPods = append(systemPods, p)
 			} else {
+				fmt.Printf("customPods: %#v\n", p.GetName())
 				customPods = append(customPods, p)
 			}
 		}
@@ -104,16 +98,16 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		for _, p := range customPods {
 			fmt.Printf("%#v\n", p)
 		}
-		fmt.Printf("\n")
 		fmt.Printf("customPods\n")
+		fmt.Printf("\n")
 
 		fmt.Printf("\n")
 		fmt.Printf("systemPods\n")
 		for _, p := range systemPods {
 			fmt.Printf("%#v\n", p)
 		}
-		fmt.Printf("\n")
 		fmt.Printf("systemPods\n")
+		fmt.Printf("\n")
 	}
 
 	// TODO delete all pods running on guest cluster node
