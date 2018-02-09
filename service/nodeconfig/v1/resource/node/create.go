@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -83,35 +82,26 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 		for _, p := range podList.Items {
 			if p.GetNamespace() == "kube-system" {
-				fmt.Printf("systemPods: %#v\n", p.GetName())
 				systemPods = append(systemPods, p)
 			} else {
-				fmt.Printf("customPods: %#v\n", p.GetName())
 				customPods = append(customPods, p)
 			}
 		}
 	}
 
-	{
-		fmt.Printf("\n")
-		fmt.Printf("customPods\n")
-		for _, p := range customPods {
-			fmt.Printf("%#v\n", p)
+	for _, p := range customPods {
+		err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+		if err != nil {
+			return microerror.Mask(err)
 		}
-		fmt.Printf("customPods\n")
-		fmt.Printf("\n")
-
-		fmt.Printf("\n")
-		fmt.Printf("systemPods\n")
-		for _, p := range systemPods {
-			fmt.Printf("%#v\n", p)
-		}
-		fmt.Printf("systemPods\n")
-		fmt.Printf("\n")
 	}
 
-	// TODO delete all pods running on guest cluster node
-	// TODO delete CRO
+	for _, p := range systemPods {
+		err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
 
 	return nil
 }
