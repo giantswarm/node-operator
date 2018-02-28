@@ -77,6 +77,14 @@ type NodeConfigSpecGuestClusterAPI struct {
 }
 
 type NodeConfigSpecGuestNode struct {
+	// Name is the identifier of the guest cluster's master and worker nodes. In
+	// Kubernetes/Kubectl they are represented as node names. The names are manage
+	// in an abstracted way because of provider specific differences.
+	//
+	//     AWS: EC2 instance DNS.
+	//     Azure: ???.
+	//     KVM: host cluster pod name.
+	//
 	Name string `json:"name" yaml:"name"`
 }
 
