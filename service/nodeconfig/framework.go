@@ -20,25 +20,12 @@ type FrameworkConfig struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
-	Name string
+	ProjectName string
 }
 
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.K8sExtClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sExtClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
-	if config.Name == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Name must not be empty", config)
 	}
 
 	var err error
@@ -72,13 +59,14 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	{
 		c := v1.ResourceSetConfig{}
 
+		c.G8sClient = config.G8sClient
 		c.K8sClient = config.K8sClient
 		c.Logger = config.Logger
 
 		c.HandledVersionBundles = []string{
 			"0.1.0",
 		}
-		c.Name = config.Name
+		c.ProjectName = config.ProjectName
 
 		v1ResourceSet, err = v1.NewResourceSet(c)
 		if err != nil {

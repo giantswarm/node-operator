@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"k8s.io/api/core/v1"
@@ -98,6 +99,21 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 	for _, p := range systemPods {
 		err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	{
+		n := v1.NamespaceDefault
+
+		c := v1alpha1.NodeConfigStatusCondition{
+			Status: "True",
+			Type:   "Drained",
+		}
+		customObject.Status.Conditions = append(customObject.Status.Conditions, c)
+
+		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(n).Update(&customObject)
 		if err != nil {
 			return microerror.Mask(err)
 		}
