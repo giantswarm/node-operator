@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -19,23 +20,17 @@ const (
 )
 
 type ResourceSetConfig struct {
+	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
 	HandledVersionBundles []string
-	Name                  string
+	ProjectName           string
 }
 
 func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
-	if config.Name == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Name must not be empty", config)
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var err error
@@ -58,6 +53,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		c := node.Config{}
 
 		c.CertsSearcher = certsSearcher
+		c.G8sClient = config.G8sClient
 		c.K8sClient = config.K8sClient
 		c.Logger = config.Logger
 
@@ -86,7 +82,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	{
 		c := metricsresource.WrapConfig{}
 
-		c.Name = config.Name
+		c.Name = config.ProjectName
 
 		resources, err = metricsresource.Wrap(resources, c)
 		if err != nil {
