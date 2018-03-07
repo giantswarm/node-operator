@@ -2,8 +2,10 @@ package node
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"k8s.io/api/core/v1"
@@ -28,35 +30,52 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	draining, err := r.certsSearcher.SearchDraining(key.ClusterID(customObject))
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	var restConfig *rest.Config
+	var draining certs.Draining
 	{
-		c := k8srestconfig.DefaultConfig()
+		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificates for the guest cluster")
 
-		c.Logger = r.logger
-
-		c.Address = key.ClusterAPIEndpoint(customObject)
-		c.InCluster = false
-		c.TLS.CAData = draining.NodeOperator.CA
-		c.TLS.CrtData = draining.NodeOperator.Crt
-		c.TLS.KeyData = draining.NodeOperator.Key
-
-		restConfig, err = k8srestconfig.New(c)
+		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found certificates for the guest cluster")
 	}
 
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return microerror.Mask(err)
+	var k8sClient kubernetes.Interface
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating Kubernetes client for the guest cluster")
+
+		var restConfig *rest.Config
+		{
+			c := k8srestconfig.DefaultConfig()
+
+			c.Logger = r.logger
+
+			c.Address = key.ClusterAPIEndpoint(customObject)
+			c.InCluster = false
+			c.TLS.CAData = draining.NodeOperator.CA
+			c.TLS.CrtData = draining.NodeOperator.Crt
+			c.TLS.KeyData = draining.NodeOperator.Key
+
+			restConfig, err = k8srestconfig.New(c)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+		}
+
+		k8sClient, err = kubernetes.NewForConfig(restConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "created Kubernetes client for the guest cluster")
 	}
 
 	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning guest cluster node")
+
 		n := key.NodeName(customObject)
 		t := types.StrategicMergePatchType
 		p := []byte(UnschedulablePatch)
@@ -65,11 +84,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoned guest cluster node")
 	}
 
 	var customPods []v1.Pod
 	var systemPods []v1.Pod
 	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the guest cluster node")
+
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeName(customObject),
 		})
@@ -88,25 +111,45 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				customPods = append(customPods, p)
 			}
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running custom workloads", len(customPods)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running system workloads", len(systemPods)))
 	}
 
-	for _, p := range customPods {
-		err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
-		if err != nil {
-			return microerror.Mask(err)
+	if len(customPods) > 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
+
+		for _, p := range customPods {
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
 	}
 
-	for _, p := range systemPods {
-		err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
-		if err != nil {
-			return microerror.Mask(err)
+	if len(systemPods) > 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
+
+		for _, p := range systemPods {
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
 
 	{
-		n := v1.NamespaceDefault
+		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
+		n := v1.NamespaceDefault
 		c := v1alpha1.NodeConfigStatusCondition{
 			Status: "True",
 			Type:   "Drained",
@@ -117,6 +160,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state")
 	}
 
 	return nil
