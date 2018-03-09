@@ -57,8 +57,10 @@ func (r *ResourceRouter) ResourceSet(obj interface{}) (*ResourceSet, error) {
 		if err != nil {
 			r.logger.Log("function", "ResourceSet", "level", "warning", "message", "cannot create accessor for object", "object", fmt.Sprintf("%#v", obj), "stack", fmt.Sprintf("%#v", err))
 		} else {
-			r.logger.Log("level", "debug", "message", "no resource set for reconciled object", "object", accessor.GetSelfLink())
+			r.logger.Log("function", "ResourceSet", "level", "debug", "message", "no resource set for reconciled object", "object", accessor.GetSelfLink())
 		}
+
+		return nil, microerror.Mask(noResourceSetError)
 	}
 	if len(found) > 1 {
 		return nil, microerror.Maskf(executionFailedError, "multiple handling resource sets found; only single allowed")
