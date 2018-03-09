@@ -95,12 +95,9 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		if err != nil {
 			return false
 		}
-		versionBundleVersion := key.VersionBundleVersion(customObject)
 
-		for _, v := range config.HandledVersionBundles {
-			if versionBundleVersion == v {
-				return true
-			}
+		if key.VersionBundleVersion(customObject) == VersionBundle().Version {
+			return true
 		}
 
 		return false
