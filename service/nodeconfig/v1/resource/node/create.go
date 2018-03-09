@@ -24,7 +24,9 @@ const (
 	UnschedulablePatch = `{"spec":{"unschedulable":true}}`
 )
 
-func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+// EnsureCreated represents the node resource implementation to manage on demand
+// node draining for guest clusters.
+func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	customObject, err := key.ToCustomObject(obj)
 	if err != nil {
 		return microerror.Mask(err)
@@ -48,21 +50,22 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 		var restConfig *rest.Config
 		{
-			c := k8srestconfig.DefaultConfig()
+			c := k8srestconfig.Config{
+				Logger: r.logger,
 
-			c.Logger = r.logger
-
-			c.Address = key.ClusterAPIEndpoint(customObject)
-			c.InCluster = false
-			c.TLS.CAData = draining.NodeOperator.CA
-			c.TLS.CrtData = draining.NodeOperator.Crt
-			c.TLS.KeyData = draining.NodeOperator.Key
+				Address:   key.ClusterAPIEndpoint(customObject),
+				InCluster: false,
+				TLS: k8srestconfig.TLSClientConfig{
+					CAData:  draining.NodeOperator.CA,
+					CrtData: draining.NodeOperator.Crt,
+					KeyData: draining.NodeOperator.Key,
+				},
+			}
 
 			restConfig, err = k8srestconfig.New(c)
 			if err != nil {
 				return microerror.Mask(err)
 			}
-
 		}
 
 		k8sClient, err = kubernetes.NewForConfig(restConfig)

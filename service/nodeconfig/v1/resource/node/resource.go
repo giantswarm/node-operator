@@ -5,7 +5,6 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/framework"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -45,9 +44,7 @@ func New(c Config) (*Resource, error) {
 		certsSearcher: c.CertsSearcher,
 		g8sClient:     c.G8sClient,
 		k8sClient:     c.K8sClient,
-		logger: c.Logger.With(
-			"resource", Name,
-		),
+		logger:        c.Logger,
 	}
 
 	return r, nil
@@ -55,8 +52,4 @@ func New(c Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func (r *Resource) Underlying() framework.Resource {
-	return r
 }
