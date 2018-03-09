@@ -29,7 +29,7 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Deprecated: false,
 		Name:       "node-operator",
-		Time:       time.Date(2018, time.December, 6, 18, 6, 0, 0, time.UTC),
+		Time:       time.Date(2018, time.February, 6, 18, 6, 0, 0, time.UTC),
 		Version:    "0.1.0",
 		WIP:        true,
 	}
