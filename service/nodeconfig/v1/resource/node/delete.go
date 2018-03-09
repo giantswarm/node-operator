@@ -2,21 +2,10 @@ package node
 
 import (
 	"context"
-
-	"github.com/giantswarm/operatorkit/framework"
 )
 
-// ApplyDeleteChange is a noop. Draining nodes does not require more complex
-// CRUD management of resources. See ApplyCreateChange for the business logic
-// implementation.
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+// EnsureDeleted is a noop, because the node resource implementation is not
+// interested in delete events of the nodeconfigs.
+func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
-}
-
-// NewDeletePatch is a noop. Draining nodes does not require more complex CRUD
-// management of resources. See ApplyCreateChange for the business logic
-// implementation.
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
-	patch := framework.NewPatch()
-	return patch, nil
 }
