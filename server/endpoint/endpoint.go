@@ -7,15 +7,13 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/node-operator/server/middleware"
 	"github.com/giantswarm/node-operator/service"
 )
 
 // Config represents the configuration used to create a endpoint.
 type Config struct {
-	Logger     micrologger.Logger
-	Middleware *middleware.Middleware
-	Service    *service.Service
+	Logger  micrologger.Logger
+	Service *service.Service
 }
 
 // Endpoint is the endpoint collection.
