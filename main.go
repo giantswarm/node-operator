@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
@@ -36,10 +35,7 @@ func mainWithError() error {
 	// Create a new logger which is used by all packages.
 	var newLogger micrologger.Logger
 	{
-		c := micrologger.DefaultConfig()
-		c.IOWriter = os.Stdout
-
-		newLogger, err = micrologger.New(c)
+		newLogger, err = micrologger.New(micrologger.Config{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
