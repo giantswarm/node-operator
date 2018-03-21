@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
-	"github.com/giantswarm/microkit/transaction"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/microstorage"
-	"github.com/giantswarm/microstorage/memory"
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/spf13/viper"
 
@@ -39,10 +35,7 @@ func mainWithError() error {
 	// Create a new logger which is used by all packages.
 	var newLogger micrologger.Logger
 	{
-		c := micrologger.DefaultConfig()
-		c.IOWriter = os.Stdout
-
-		newLogger, err = micrologger.New(c)
+		newLogger, err = micrologger.New(micrologger.Config{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -72,36 +65,14 @@ func mainWithError() error {
 			go newService.Boot()
 		}
 
-		var storage microstorage.Storage
-		{
-			storage, err = memory.New(memory.DefaultConfig())
-			if err != nil {
-				panic(fmt.Sprintf("%#v", err))
-			}
-		}
-
-		var transactionResponder transaction.Responder
-		{
-			c := transaction.DefaultResponderConfig()
-			c.Logger = newLogger
-			c.Storage = storage
-
-			transactionResponder, err = transaction.NewResponder(c)
-			if err != nil {
-				panic(fmt.Sprintf("%#v", err))
-			}
-		}
-
 		// Create a new custom server which bundles our endpoints.
 		var newServer microserver.Server
 		{
-			c := server.DefaultConfig()
-
-			c.MicroServerConfig.Logger = newLogger
-			c.MicroServerConfig.TransactionResponder = transactionResponder
-			c.MicroServerConfig.ServiceName = name
-			c.MicroServerConfig.Viper = v
-			c.Service = newService
+			c := server.Config{
+				Logger:  newLogger,
+				Service: newService,
+				Viper:   v,
+			}
 
 			newServer, err = server.New(c)
 			if err != nil {
@@ -115,16 +86,16 @@ func mainWithError() error {
 	// Create a new microkit command which manages our custom microservice.
 	var newCommand command.Command
 	{
-		c := command.DefaultConfig()
+		c := command.Config{
+			Logger:        newLogger,
+			ServerFactory: newServerFactory,
 
-		c.Logger = newLogger
-		c.ServerFactory = newServerFactory
-
-		c.Description = description
-		c.GitCommit = gitCommit
-		c.Name = name
-		c.Source = source
-		c.VersionBundles = service.NewVersionBundles()
+			Description:    description,
+			GitCommit:      gitCommit,
+			Name:           name,
+			Source:         source,
+			VersionBundles: service.NewVersionBundles(),
+		}
 
 		newCommand, err = command.New(c)
 		if err != nil {
