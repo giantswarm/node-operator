@@ -59,7 +59,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -69,13 +69,13 @@
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "f8ac8dd18851337d1f3fa6d11c583b051d0f080d"
+  revision = "1470b7cff67311b0f4d3c7d6349115ae568d59ee"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "1379d3b80cfe2fc9da5c1c948d1f37bfa59ca9dc"
+  revision = "162a1130d27d6bbe1ab101059afab985707e46b0"
 
 [[projects]]
   branch = "master"
@@ -129,7 +129,7 @@
   revision = "2aaea11da0707ebb7f9fbabb07028a37b00efc16"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -144,7 +144,7 @@
     "framework/resource/retryresource",
     "informer"
   ]
-  revision = "ab009f84c1822c7d8271e49883f77d09d22dad00"
+  revision = "e785d24fd81b018fa0ebe1fa7874e306a413461a"
 
 [[projects]]
   branch = "master"
@@ -680,6 +680,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6e3a49abf2a9131ee24f3577843b4bf4ec18d81dbb63d8e973133d8ad85d61bb"
+  inputs-digest = "073022bd4a1a300a6cd1aac5b46eac70b37d0416777e5a0699a5cab94c717ec8"
   solver-name = "gps-cdcl"
   solver-version = 1
