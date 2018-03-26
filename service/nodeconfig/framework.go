@@ -95,13 +95,16 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 	var crdFramework *framework.Framework
 	{
-		c := framework.Config{}
+		c := framework.Config{
+			CRD:            v1alpha1.NewNodeConfigCRD(),
+			CRDClient:      crdClient,
+			Informer:       newInformer,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ResourceRouter: resourceRouter,
 
-		c.CRD = v1alpha1.NewNodeConfigCRD()
-		c.CRDClient = crdClient
-		c.Informer = newInformer
-		c.Logger = config.Logger
-		c.ResourceRouter = resourceRouter
+			Name: config.ProjectName,
+		}
 
 		crdFramework, err = framework.New(c)
 		if err != nil {
