@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"time"
+
 	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
@@ -40,6 +42,8 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		c := certs.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			WatchTimeout: 5 * time.Second,
 		}
 
 		certsSearcher, err = certs.NewSearcher(c)

@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/operatorkit/framework/context/reconciliationcanceledcontext"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -37,7 +38,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificates for the guest cluster")
 
 		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
-		if err != nil {
+		if certs.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find guest cluster certificates")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
