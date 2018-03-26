@@ -43,7 +43,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// logs will surge and we have a chance to try to drain again in case
 			// there are only some weird connection issues to the guest cluster
 			// Kubernetes API.
-			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find certificates for guest cluster '%s'", key.ClusterID(customObject))
+			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject))
 			return microerror.Mask(err)
 		} else if err != nil {
 			return microerror.Mask(err)
