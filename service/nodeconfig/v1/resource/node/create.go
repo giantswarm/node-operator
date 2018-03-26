@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
-	"github.com/giantswarm/operatorkit/framework/context/reconciliationcanceledcontext"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -39,11 +38,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
 		if certs.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find guest cluster certificates")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
-
-			return nil
+			// Here we log a warning for alerting purposes and also return an error to
+			// make the resource execution being retried. Then the amount of warning
+			// logs will surge and we have a chance to try to drain again in case
+			// there are only some weird connection issues to the guest cluster
+			// Kubernetes API.
+			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find certificates for guest cluster '%s'", key.ClusterID(customObject))
+			return microerror.Mask(err)
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
