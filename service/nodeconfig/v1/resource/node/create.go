@@ -43,7 +43,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// logs will surge and we have a chance to try to drain again in case
 			// there are only some weird connection issues to the guest cluster
 			// Kubernetes API.
-			r.logger.LogCtx(ctx, "level", "warning", "message", "cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject))
+			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject)))
 			return microerror.Mask(err)
 		} else if err != nil {
 			return microerror.Mask(err)
@@ -160,14 +160,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
-		n := v1.NamespaceDefault
 		c := v1alpha1.NodeConfigStatusCondition{
 			Status: "True",
 			Type:   "Drained",
 		}
 		customObject.Status.Conditions = append(customObject.Status.Conditions, c)
 
-		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(n).Update(&customObject)
+		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).Update(&customObject)
 		if err != nil {
 			return microerror.Mask(err)
 		}
