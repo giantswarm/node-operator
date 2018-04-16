@@ -1,4 +1,4 @@
-package nodeconfig
+package controller
 
 import "github.com/giantswarm/microerror"
 

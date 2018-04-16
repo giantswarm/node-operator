@@ -15,8 +15,8 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/node-operator/flag"
+	"github.com/giantswarm/node-operator/service/controller"
 	"github.com/giantswarm/node-operator/service/healthz"
-	"github.com/giantswarm/node-operator/service/nodeconfig"
 )
 
 type Config struct {
@@ -98,7 +98,7 @@ func New(config Config) (*Service, error) {
 
 	var nodeConfigFramework *framework.Framework
 	{
-		c := nodeconfig.FrameworkConfig{
+		c := controller.FrameworkConfig{
 			G8sClient:    g8sClient,
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
@@ -107,7 +107,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.Name,
 		}
 
-		nodeConfigFramework, err = nodeconfig.NewFramework(c)
+		nodeConfigFramework, err = controller.NewFramework(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
