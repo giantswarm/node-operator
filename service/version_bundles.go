@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/giantswarm/versionbundle"
 
-	"github.com/giantswarm/node-operator/service/nodeconfig/v1"
+	"github.com/giantswarm/node-operator/service/controller/v1"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {

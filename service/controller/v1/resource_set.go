@@ -13,8 +13,8 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/node-operator/service/nodeconfig/v1/key"
-	"github.com/giantswarm/node-operator/service/nodeconfig/v1/resource/node"
+	"github.com/giantswarm/node-operator/service/controller/v1/key"
+	"github.com/giantswarm/node-operator/service/controller/v1/resource/node"
 )
 
 const (
