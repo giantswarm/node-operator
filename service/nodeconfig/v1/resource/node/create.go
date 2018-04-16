@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -160,11 +159,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
-		c := v1alpha1.NodeConfigStatusCondition{
-			Status: "True",
-			Type:   "Drained",
-		}
-		customObject.Status.Conditions = append(customObject.Status.Conditions, c)
+		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
 
 		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).Update(&customObject)
 		if err != nil {
