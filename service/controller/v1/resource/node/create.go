@@ -156,7 +156,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
 
-	{
+	if !customObject.Status.HasFinalCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
