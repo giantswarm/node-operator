@@ -99,7 +99,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	var customPods []v1.Pod
-	var systemPods []v1.Pod
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the guest cluster node")
 
@@ -116,14 +115,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		for _, p := range podList.Items {
 			if p.GetNamespace() == "kube-system" {
-				systemPods = append(systemPods, p)
+				continue
 			} else {
 				customPods = append(customPods, p)
 			}
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running custom workloads", len(customPods)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running system workloads", len(systemPods)))
 	}
 
 	if len(customPods) > 0 {
@@ -139,21 +137,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
-	}
-
-	if len(systemPods) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
-
-		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
 
 	if !customObject.Status.HasFinalCondition() {
