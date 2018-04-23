@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
-	operatorkitcontroller "github.com/giantswarm/operatorkit/controller"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -31,11 +30,11 @@ type Config struct {
 }
 
 type Service struct {
-	Healthz             *healthz.Service
-	NodeConfigFramework *operatorkitcontroller.Controller
-	Version             *version.Service
+	Healthz *healthz.Service
+	Version *version.Service
 
-	bootOnce sync.Once
+	bootOnce       sync.Once
+	nodeController *controller.Node
 }
 
 func New(config Config) (*Service, error) {
@@ -96,9 +95,9 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var nodeConfigFramework *operatorkitcontroller.Controller
+	var nodeController *controller.Node
 	{
-		c := controller.FrameworkConfig{
+		c := controller.NodeConfig{
 			G8sClient:    g8sClient,
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
@@ -107,7 +106,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.Name,
 		}
 
-		nodeConfigFramework, err = controller.NewFramework(c)
+		nodeController, err = controller.NewNode(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -130,11 +129,11 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		Healthz:             healthzService,
-		NodeConfigFramework: nodeConfigFramework,
-		Version:             versionService,
+		Healthz: healthzService,
+		Version: versionService,
 
-		bootOnce: sync.Once{},
+		bootOnce:       sync.Once{},
+		nodeController: nodeController,
 	}
 
 	return newService, nil
@@ -142,6 +141,6 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.NodeConfigFramework.Boot()
+		go s.nodeController.Boot()
 	})
 }
