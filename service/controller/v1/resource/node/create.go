@@ -46,13 +46,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
 		if certs.IsTimeout(err) {
-			// Here we log a warning for alerting purposes and also return an error to
-			// make the resource execution being retried. Then the amount of warning
-			// logs will surge and we have a chance to try to drain again in case
-			// there are only some weird connection issues to the guest cluster
-			// Kubernetes API.
+			// Here we log a warning for alerting purposes. The resource
+			// reconciliation will be retried so we have a chance to try to drain
+			// again in case there are only some weird connection issues to the guest
+			// cluster Kubernetes API.
 			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject)))
-			return microerror.Mask(err)
+
+			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
