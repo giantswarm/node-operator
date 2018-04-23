@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
-	"github.com/giantswarm/operatorkit/framework"
+	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -23,7 +23,7 @@ type FrameworkConfig struct {
 	ProjectName string
 }
 
-func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
+func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -58,7 +58,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	var v1ResourceSet *framework.ResourceSet
+	var v1ResourceSet *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{}
 
@@ -77,25 +77,25 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	var resourceRouter *framework.ResourceRouter
+	var resourceRouter *controller.ResourceRouter
 	{
-		c := framework.ResourceRouterConfig{
+		c := controller.ResourceRouterConfig{
 			Logger: config.Logger,
 
-			ResourceSets: []*framework.ResourceSet{
+			ResourceSets: []*controller.ResourceSet{
 				v1ResourceSet,
 			},
 		}
 
-		resourceRouter, err = framework.NewResourceRouter(c)
+		resourceRouter, err = controller.NewResourceRouter(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var crdFramework *framework.Framework
+	var crdFramework *controller.Controller
 	{
-		c := framework.Config{
+		c := controller.Config{
 			CRD:            v1alpha1.NewNodeConfigCRD(),
 			CRDClient:      crdClient,
 			Informer:       newInformer,
@@ -106,7 +106,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 			Name: config.ProjectName,
 		}
 
-		crdFramework, err = framework.New(c)
+		crdFramework, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
