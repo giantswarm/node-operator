@@ -129,7 +129,7 @@
   revision = "ad4de16de22043f947fdf6c587cbc2736456d33d"
 
 [[projects]]
-  branch = "master"
+  branch = "fix"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -145,7 +145,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "20be1f8c80b4b638cfebd5e8fb001a003c27762b"
+  revision = "d25b64e31f25209788318b43a891896cba322313"
 
 [[projects]]
   branch = "master"
@@ -682,6 +682,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "168aa4c1fb417fae2e79720fc26c2051c8bb0d8609c5b2b404a2508ded53d101"
+  inputs-digest = "bb5982fe29285cf7b9d6a8aaac1d7289596168953a6bd691c2c7011f98b340e7"
   solver-name = "gps-cdcl"
   solver-version = 1

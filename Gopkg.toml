@@ -48,7 +48,7 @@ required = [
   name = "github.com/giantswarm/micrologger"
 
 [[constraint]]
-  branch = "master"
+  branch = "fix"
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
