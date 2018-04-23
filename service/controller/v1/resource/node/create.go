@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -31,19 +32,27 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if customObject.Status.HasFinalCondition() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state")
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+
+		return nil
+	}
+
 	var draining certs.Draining
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificates for the guest cluster")
 
 		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
 		if certs.IsTimeout(err) {
-			// Here we log a warning for alerting purposes and also return an error to
-			// make the resource execution being retried. Then the amount of warning
-			// logs will surge and we have a chance to try to drain again in case
-			// there are only some weird connection issues to the guest cluster
-			// Kubernetes API.
+			// Here we log a warning for alerting purposes. The resource
+			// reconciliation will be retried so we have a chance to try to drain
+			// again in case there are only some weird connection issues to the guest
+			// cluster Kubernetes API.
 			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject)))
-			return microerror.Mask(err)
+
+			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
@@ -156,7 +165,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
 
-	if !customObject.Status.HasFinalCondition() {
+	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
