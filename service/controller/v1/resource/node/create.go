@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -29,6 +30,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	customObject, err := key.ToCustomObject(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	if customObject.Status.HasFinalCondition() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state")
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+
+		return nil
 	}
 
 	var draining certs.Draining
@@ -156,7 +165,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
 
-	if !customObject.Status.HasFinalCondition() {
+	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
