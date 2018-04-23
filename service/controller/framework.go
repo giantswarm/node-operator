@@ -99,9 +99,9 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 			CRD:            v1alpha1.NewNodeConfigCRD(),
 			CRDClient:      crdClient,
 			Informer:       newInformer,
-			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ResourceRouter: resourceRouter,
+			RESTClient:     config.G8sClient.CoreV1alpha1().RESTClient(),
 
 			Name: config.ProjectName,
 		}
