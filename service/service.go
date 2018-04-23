@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
-	"github.com/giantswarm/operatorkit/framework"
+	operatorkitcontroller "github.com/giantswarm/operatorkit/controller"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -32,7 +32,7 @@ type Config struct {
 
 type Service struct {
 	Healthz             *healthz.Service
-	NodeConfigFramework *framework.Framework
+	NodeConfigFramework *operatorkitcontroller.Controller
 	Version             *version.Service
 
 	bootOnce sync.Once
@@ -96,7 +96,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var nodeConfigFramework *framework.Framework
+	var nodeConfigFramework *operatorkitcontroller.Controller
 	{
 		c := controller.FrameworkConfig{
 			G8sClient:    g8sClient,

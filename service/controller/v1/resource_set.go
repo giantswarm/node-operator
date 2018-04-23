@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/framework"
-	"github.com/giantswarm/operatorkit/framework/resource/metricsresource"
-	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
+	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
+	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/service/controller/v1/key"
@@ -30,7 +30,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
+func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -52,7 +52,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		}
 	}
 
-	var nodeResource framework.Resource
+	var nodeResource controller.Resource
 	{
 		c := node.Config{}
 
@@ -67,7 +67,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		}
 	}
 
-	resources := []framework.Resource{
+	resources := []controller.Resource{
 		nodeResource,
 	}
 
@@ -107,15 +107,15 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		return false
 	}
 
-	var resourceSet *framework.ResourceSet
+	var resourceSet *controller.ResourceSet
 	{
-		c := framework.ResourceSetConfig{}
+		c := controller.ResourceSetConfig{}
 
 		c.Handles = handlesFunc
 		c.Logger = config.Logger
 		c.Resources = resources
 
-		resourceSet, err = framework.NewResourceSet(c)
+		resourceSet, err = controller.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
