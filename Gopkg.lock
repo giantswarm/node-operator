@@ -129,7 +129,7 @@
   revision = "ad4de16de22043f947fdf6c587cbc2736456d33d"
 
 [[projects]]
-  branch = "fix"
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -145,7 +145,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "8c73a1fabfc9ff9f9113d43b95ce9bdaa1591bc9"
+  revision = "1ddbbec19f4b9a9f8f942cb9313fc273e2a6a63c"
 
 [[projects]]
   branch = "master"
@@ -412,7 +412,7 @@
     "internal/bitbucket.org/ww/goautoneg",
     "model"
   ]
-  revision = "d0f7cd64bda49e08b22ae8a730aa57aa0db125d6"
+  revision = "e5b036cc37a466a0af27d604d1ee500211d16d6a"
 
 [[projects]]
   branch = "master"
@@ -682,6 +682,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bb5982fe29285cf7b9d6a8aaac1d7289596168953a6bd691c2c7011f98b340e7"
+  inputs-digest = "4e2f488cecd5686ae793698db508fc351efcab1da9d165a00d5a370d3589c84a"
   solver-name = "gps-cdcl"
   solver-version = 1
