@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/node-operator/service/controller/v1"
 )
 
-type FrameworkConfig struct {
+type NodeConfig struct {
 	G8sClient    versioned.Interface
 	K8sClient    kubernetes.Interface
 	K8sExtClient apiextensionsclient.Interface
@@ -23,7 +23,11 @@ type FrameworkConfig struct {
 	ProjectName string
 }
 
-func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
+type Node struct {
+	*controller.Controller
+}
+
+func NewNode(config NodeConfig) (*Node, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -93,7 +97,7 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 		}
 	}
 
-	var crdFramework *controller.Controller
+	var operatorkitController *controller.Controller
 	{
 		c := controller.Config{
 			CRD:            v1alpha1.NewNodeConfigCRD(),
@@ -106,11 +110,15 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 			Name: config.ProjectName,
 		}
 
-		crdFramework, err = controller.New(c)
+		operatorkitController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	return crdFramework, nil
+	n := &Node{
+		Controller: operatorkitController,
+	}
+
+	return n, nil
 }
