@@ -50,6 +50,7 @@ func NewNode(config NodeConfig) (*Node, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
+			Logger:  config.Logger,
 			Watcher: config.G8sClient.CoreV1alpha1().NodeConfigs(""),
 
 			RateWait:     informer.DefaultRateWait,
