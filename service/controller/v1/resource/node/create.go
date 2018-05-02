@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
@@ -100,7 +101,28 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		p := []byte(UnschedulablePatch)
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
-		if err != nil {
+		if apierrors.IsNotFound(err) {
+			// It might happen the node we want to drain got already removed. This
+			// might even be due to human intervention. In case we cannot find the
+			// node we assume the draining was successful and set the node config
+			// status accordingly.
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
+
+			customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
+
+			_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).Update(&customObject)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state")
+			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
