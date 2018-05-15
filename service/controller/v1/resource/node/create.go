@@ -188,7 +188,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster %q to final state", key.ClusterID(customObject)))
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
 
@@ -197,7 +197,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster %q to final state", key.ClusterID(customObject)))
 	}
 
 	return nil
