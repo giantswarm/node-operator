@@ -3,9 +3,9 @@ package v1
 import (
 	"time"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -31,10 +31,6 @@ type ResourceSetConfig struct {
 }
 
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
-
 	var err error
 
 	var certsSearcher certs.Interface
@@ -52,14 +48,28 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var guestCluster guestcluster.Interface
+	{
+		c := guestcluster.Config{
+			CertsSearcher: certsSearcher,
+			Logger:        config.Logger,
+
+			CertID: certs.NodeOperatorCert,
+		}
+
+		guestCluster, err = guestcluster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var nodeResource controller.Resource
 	{
-		c := node.Config{}
-
-		c.CertsSearcher = certsSearcher
-		c.G8sClient = config.G8sClient
-		c.K8sClient = config.K8sClient
-		c.Logger = config.Logger
+		c := node.Config{
+			GuestCluster: guestCluster,
+			G8sClient:    config.G8sClient,
+			Logger:       config.Logger,
+		}
 
 		nodeResource, err = node.New(c)
 		if err != nil {
@@ -72,10 +82,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	{
-		c := retryresource.WrapConfig{}
-
-		c.BackOffFactory = func() backoff.BackOff { return backoff.WithMaxTries(backoff.NewExponentialBackOff(), ResourceRetries) }
-		c.Logger = config.Logger
+		c := retryresource.WrapConfig{
+			Logger: config.Logger,
+		}
 
 		resources, err = retryresource.Wrap(resources, c)
 		if err != nil {
@@ -84,9 +93,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	{
-		c := metricsresource.WrapConfig{}
-
-		c.Name = config.ProjectName
+		c := metricsresource.WrapConfig{
+			Name: config.ProjectName,
+		}
 
 		resources, err = metricsresource.Wrap(resources, c)
 		if err != nil {
@@ -109,11 +118,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	var resourceSet *controller.ResourceSet
 	{
-		c := controller.ResourceSetConfig{}
-
-		c.Handles = handlesFunc
-		c.Logger = config.Logger
-		c.Resources = resources
+		c := controller.ResourceSetConfig{
+			Handles:   handlesFunc,
+			Logger:    config.Logger,
+			Resources: resources,
+		}
 
 		resourceSet, err = controller.NewResourceSet(c)
 		if err != nil {
