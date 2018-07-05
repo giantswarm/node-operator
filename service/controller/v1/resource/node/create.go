@@ -4,17 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/node-operator/service/controller/v1/key"
 )
@@ -41,56 +37,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	var draining certs.Draining
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificates for the guest cluster")
-
-		draining, err = r.certsSearcher.SearchDraining(key.ClusterID(customObject))
-		if certs.IsTimeout(err) {
-			// Here we log a warning for alerting purposes. The resource
-			// reconciliation will be retried so we have a chance to try to drain
-			// again in case there are only some weird connection issues to the guest
-			// cluster Kubernetes API.
-			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot find certificates for draining guest cluster '%s'", key.ClusterID(customObject)))
-
-			return nil
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found certificates for the guest cluster")
-	}
-
-	var k8sClient kubernetes.Interface
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating Kubernetes client for the guest cluster")
-
-		var restConfig *rest.Config
-		{
-			c := k8srestconfig.Config{
-				Logger: r.logger,
-
-				Address:   key.ClusterAPIEndpoint(customObject),
-				InCluster: false,
-				TLS: k8srestconfig.TLSClientConfig{
-					CAData:  draining.NodeOperator.CA,
-					CrtData: draining.NodeOperator.Crt,
-					KeyData: draining.NodeOperator.Key,
-				},
-			}
-
-			restConfig, err = k8srestconfig.New(c)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-		}
-
-		k8sClient, err = kubernetes.NewForConfig(restConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "created Kubernetes client for the guest cluster")
+	k8sClient, err := r.guestCluster.NewK8sClient(ctx, key.ClusterID(customObject), key.ClusterAPIEndpoint(customObject))
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	{
@@ -188,7 +137,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster %q to final state", key.ClusterID(customObject)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster '%s' to final state", key.ClusterID(customObject)))
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
 
@@ -197,7 +146,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster %q to final state", key.ClusterID(customObject)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster '%s' to final state", key.ClusterID(customObject)))
 	}
 
 	return nil
