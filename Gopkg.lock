@@ -121,13 +121,13 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "da7b03c10297c34b5e72e4b89189d4c8ce52fade"
+  revision = "384d9ad387472ec2fb6a6cbc3c3b77cc84d7837a"
 
 [[projects]]
-  branch = "search-tls"
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "ac74b9f99815be133f6a2fb39b39821df6bc13e8"
+  revision = "fa0af96de35e5a2d7c51f5ba9e49a4f346496c00"
 
 [[projects]]
   branch = "master"
@@ -136,10 +136,10 @@
   revision = "1aa8d2252e47796136320c0cf768b79fb3d969d6"
 
 [[projects]]
-  branch = "full"
+  branch = "master"
   name = "github.com/giantswarm/guestcluster"
   packages = ["."]
-  revision = "0ab6ee2cb758e99a4ce8b454ba38fcd87ad4d80f"
+  revision = "6118d8f8ce7bcbaa0ab502371acd2058ed2d976d"
 
 [[projects]]
   branch = "master"
@@ -221,7 +221,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "5dc93b8ef81d2684b755a813327aada03d7dc2f8"
+  revision = "070ef8e414feb53402e4107057e89ced6f6e2a3e"
 
 [[projects]]
   branch = "master"
@@ -248,8 +248,8 @@
 [[projects]]
   name = "github.com/go-resty/resty"
   packages = ["."]
-  revision = "fc3ad735b5565cada42d34bc298573fd3fe5adc6"
-  version = "v1.6"
+  revision = "fccc498aed22c31ff3768bcac00795f94149a21d"
+  version = "v1.7.0"
 
 [[projects]]
   name = "github.com/go-stack/stack"
@@ -544,7 +544,7 @@
     "unix",
     "windows"
   ]
-  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
+  revision = "151529c776cdc58ddbe7963ba9af779f3577b419"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -1084,7 +1084,7 @@
   branch = "master"
   name = "k8s.io/utils"
   packages = ["exec"]
-  revision = "733eca437aa39379e4bcc25e726439dfca40fcff"
+  revision = "ab9069044f32ba0c6da081bb46bb0b12e3862c21"
 
 [[projects]]
   branch = "master"
@@ -1095,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "88a7a73c96ce4c8ebba3b6ddef3325628c19ee7e9246f35eef1cf2a7fc851e05"
+  inputs-digest = "3dd6ec732fd1ade7e625ee0d56d0391796c12d1ea3417079efe23c48865fedfb"
   solver-name = "gps-cdcl"
   solver-version = 1

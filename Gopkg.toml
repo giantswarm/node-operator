@@ -38,7 +38,7 @@ required = [
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
-  branch = "full"
+  branch = "master"
   name = "github.com/giantswarm/guestcluster"
 
 [[constraint]]

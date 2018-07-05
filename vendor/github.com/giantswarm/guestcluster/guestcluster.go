@@ -18,7 +18,8 @@ type Config struct {
 	CertsSearcher certs.Interface
 	Logger        micrologger.Logger
 
-	CertID certs.Cert
+	CertID          certs.Cert
+	TillerNamespace string
 }
 
 // GuestCluster provides functionality for connecting to guest clusters.
@@ -26,7 +27,8 @@ type GuestCluster struct {
 	certsSearcher certs.Interface
 	logger        micrologger.Logger
 
-	certID certs.Cert
+	certID          certs.Cert
+	tillerNamespace string
 }
 
 // New creates a new guest cluster service.
@@ -41,12 +43,16 @@ func New(config Config) (*GuestCluster, error) {
 	if config.CertID == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertID must not be empty", config)
 	}
+	if config.TillerNamespace == "" {
+		config.TillerNamespace = TillerDefaultNamespace
+	}
 
 	g := &GuestCluster{
 		certsSearcher: config.CertsSearcher,
 		logger:        config.Logger,
 
-		certID: config.CertID,
+		certID:          config.CertID,
+		tillerNamespace: config.TillerNamespace,
 	}
 
 	return g, nil
@@ -90,7 +96,7 @@ func (g *GuestCluster) NewHelmClient(ctx context.Context, clusterID, apiDomain s
 		Logger:    g.logger,
 
 		RestConfig:      restConfig,
-		TillerNamespace: tillerDefaultNamespace,
+		TillerNamespace: g.tillerNamespace,
 	}
 	helmClient, err := helmclient.New(c)
 	if err != nil {
