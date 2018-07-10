@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "nodev1"
+	Name = "drainerv1"
 )
 
 type Config struct {
