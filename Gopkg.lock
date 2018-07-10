@@ -121,7 +121,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "384d9ad387472ec2fb6a6cbc3c3b77cc84d7837a"
+  revision = "52949fbd1f95f7ed0da3edf56061bc0d2571537f"
 
 [[projects]]
   branch = "master"
@@ -438,7 +438,7 @@
     "prometheus",
     "prometheus/promhttp"
   ]
-  revision = "d6a9817c4afc94d51115e4a30d449056a3fbf547"
+  revision = "ae27198cdd90bf12cd134ad79d1366a6cf49f632"
 
 [[projects]]
   branch = "master"
@@ -465,7 +465,7 @@
     "nfs",
     "xfs"
   ]
-  revision = "40f013a808ec4fa79def444a1a56de4d1727efcb"
+  revision = "ae68e2d4c00fed4943b5f6698d504a5fe083da8a"
 
 [[projects]]
   name = "github.com/spf13/afero"
@@ -529,7 +529,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "ed29d75add3d7c4bf7ca65aac0c6df3d1420216f"
+  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
 
 [[projects]]
   branch = "master"
@@ -544,7 +544,7 @@
     "unix",
     "windows"
   ]
-  revision = "151529c776cdc58ddbe7963ba9af779f3577b419"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -583,7 +583,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "ff3583edef7de132f219f0efc00e097cabcc0ec0"
+  revision = "e92b116572682a5b432ddd840aeaba2a559eeff1"
 
 [[projects]]
   name = "google.golang.org/grpc"
