@@ -19,7 +19,6 @@ rules:
     verbs:
       - get
       - list
-      - patch
       - update
       - watch
   # The node-operator watches DrainerConfig CRs and updates their status. It
@@ -32,13 +31,8 @@ rules:
     verbs:
       - get
       - list
-      - watch
-  - apiGroups:
-      - core.giantswarm.io
-    resources:
-      - drainerconfigs/status
-    verbs:
       - update
+      - watch
   # The node-operator watches secrets in order to create Kubernetes clients for
   # being able to access guest clusters to drain its nodes. It must not be
   # allowed to do anything else than reading secrets.
@@ -48,6 +42,7 @@ rules:
       - secrets
     verbs:
       - get
+      - list
       - watch
   - apiGroups:
       - ""
