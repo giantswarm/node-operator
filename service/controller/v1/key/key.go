@@ -52,3 +52,7 @@ func ToDrainerConfig(v interface{}) (v1alpha1.DrainerConfig, error) {
 func VersionBundleVersion(customObject v1alpha1.NodeConfig) string {
 	return customObject.Spec.VersionBundle.Version
 }
+
+func VersionBundleVersionFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
+	return drainerConfig.Spec.VersionBundle.Version
+}

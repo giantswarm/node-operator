@@ -104,12 +104,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		customObject, err := key.ToCustomObject(obj)
+		drainerConfig, err := key.ToDrainerConfig(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(customObject) == VersionBundle().Version {
+		if key.VersionBundleVersionFromDrainerConfig(drainerConfig) == VersionBundle().Version {
 			return true
 		}
 
