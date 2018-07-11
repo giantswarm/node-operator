@@ -109,7 +109,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
+  branch = "drainer"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -121,7 +121,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "52949fbd1f95f7ed0da3edf56061bc0d2571537f"
+  revision = "5ed12fb6317db3c592f955b2b86cceccde945e42"
 
 [[projects]]
   branch = "master"
@@ -221,7 +221,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "070ef8e414feb53402e4107057e89ced6f6e2a3e"
+  revision = "09dd03341dd8ade7ad177c5cce4a412a7a9a4d3b"
 
 [[projects]]
   branch = "master"
@@ -438,7 +438,7 @@
     "prometheus",
     "prometheus/promhttp"
   ]
-  revision = "ae27198cdd90bf12cd134ad79d1366a6cf49f632"
+  revision = "ee1c9d7e23df7f011bdf6f12a5c9e7f0ae10a1fe"
 
 [[projects]]
   branch = "master"
@@ -529,7 +529,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
+  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
 
 [[projects]]
   branch = "master"
@@ -919,7 +919,7 @@
   branch = "master"
   name = "k8s.io/kube-openapi"
   packages = ["pkg/util/proto"]
-  revision = "d83b052f768a50a309c692a9c271da3f3276ff88"
+  revision = "0cf8f7e6ed1d2e3d47d02e3b6e559369af24d803"
 
 [[projects]]
   name = "k8s.io/kubernetes"
@@ -1095,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3dd6ec732fd1ade7e625ee0d56d0391796c12d1ea3417079efe23c48865fedfb"
+  inputs-digest = "5820a992b9cf097ce3eb7fd64b0dea034845ac53b4bb7b868cac09c8d77ebf4f"
   solver-name = "gps-cdcl"
   solver-version = 1
