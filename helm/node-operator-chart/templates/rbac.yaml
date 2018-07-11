@@ -9,12 +9,32 @@ rules:
       - customresourcedefinitions
     verbs:
       - "*"
+  # The node-operator watches NodeConfig CRs and updates their status. It must
+  # not be allowed to create these CRs nor delete them. This responsibility is
+  # given to other authorities.
   - apiGroups:
       - core.giantswarm.io
     resources:
       - nodeconfigs
     verbs:
-      - "*"
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  # The node-operator watches DrainerConfig CRs and updates their status. It
+  # must not be allowed to create these CRs nor delete them. This responsibility
+  # is given to other authorities.
+  - apiGroups:
+      - core.giantswarm.io
+    resources:
+      - drainerconfigs
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - ""
     resources:
