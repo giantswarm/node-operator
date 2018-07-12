@@ -109,7 +109,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
+  branch = "timeout"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -121,7 +121,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "4f54cccfdd4bfe6c159488247ef1fcc24715b9c0"
+  revision = "8bd0514998713bf890370f3fa437f72f4d2561ee"
 
 [[projects]]
   branch = "master"
@@ -145,7 +145,7 @@
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "b48ae48e60b4891baf6f3ab23eff9ed469532ad0"
+  revision = "84047810776e7ffb8484cc6efe2ccac2b73d1246"
 
 [[projects]]
   branch = "master"
@@ -157,7 +157,7 @@
   branch = "master"
   name = "github.com/giantswarm/k8sportforward"
   packages = ["."]
-  revision = "00489ad5cc81835cf9bf13e9dfa538fa6f3f729e"
+  revision = "5f1a090222cf476117c0d42705846928c577aa5b"
 
 [[projects]]
   branch = "master"
@@ -444,7 +444,7 @@
   branch = "master"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
-  revision = "99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c"
+  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
 
 [[projects]]
   branch = "master"
@@ -1095,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3dd6ec732fd1ade7e625ee0d56d0391796c12d1ea3417079efe23c48865fedfb"
+  inputs-digest = "32015a6b25b31c6df9d4c2d91951859c970dea6ddf6fcde6c67ed7dc4a25dd75"
   solver-name = "gps-cdcl"
   solver-version = 1
