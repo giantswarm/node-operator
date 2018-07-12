@@ -30,10 +30,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	clusterID := key.ClusterIDFromDrainerConfig(drainerConfig)
+
 	if drainerConfig.Status.HasFinalCondition() {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state", "clusterID", clusterID)
 		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
 		return nil
 	}
@@ -49,7 +51,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning guest cluster node", "clusterID", clusterID)
 
 		n := key.NodeNameFromDrainerConfig(drainerConfig)
 		t := types.StrategicMergePatchType
@@ -62,8 +64,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// node we assume the draining was successful and set the node config
 			// status accordingly.
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found", "clusterID", clusterID)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state", "clusterID", clusterID)
 
 			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewFinalCondition())
 
@@ -72,22 +74,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state", "clusterID", clusterID)
 			resourcecanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoned guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoned guest cluster node", "clusterID", clusterID)
 	}
 
 	var customPods []v1.Pod
 	var systemPods []v1.Pod
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the guest cluster node", "clusterID", clusterID)
 
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeNameFromDrainerConfig(drainerConfig),
@@ -108,12 +110,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running custom workloads", len(customPods)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running system workloads", len(systemPods)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running custom workloads", len(customPods)), "clusterID", clusterID)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d pods running system workloads", len(systemPods)), "clusterID", clusterID)
 	}
 
 	if len(customPods) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads", "clusterID", clusterID)
 
 		for _, p := range customPods {
 			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
@@ -122,13 +124,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads", "clusterID", clusterID)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads", "clusterID", clusterID)
 	}
 
 	if len(systemPods) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads", "clusterID", clusterID)
 
 		for _, p := range systemPods {
 			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
@@ -137,13 +139,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads", "clusterID", clusterID)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads", "clusterID", clusterID)
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewFinalCondition())
 
@@ -152,7 +154,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
 	}
 
 	return nil
