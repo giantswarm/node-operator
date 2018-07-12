@@ -143,6 +143,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting guest cluster node from Kubernetes API")
+
+		n := key.NodeNameFromDrainerConfig(drainerConfig)
+		o := &apismetav1.DeleteOptions{}
+		err := k8sClient.CoreV1().Nodes().Delete(n, o)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted guest cluster node from Kubernetes API")
+	}
+
+	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewFinalCondition())
