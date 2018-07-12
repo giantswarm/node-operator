@@ -22,9 +22,9 @@ func (s DrainerConfigStatus) NewTimeoutCondition() DrainerConfigStatusCondition 
 	}
 }
 
-func hasDrainerConfigCondition(conditions []DrainerConfigStatusCondition, search string, status string) bool {
+func hasDrainerConfigCondition(conditions []DrainerConfigStatusCondition, s string, t string) bool {
 	for _, c := range conditions {
-		if c.Status == search && c.Type == status {
+		if c.Status == s && c.Type == t {
 			return true
 		}
 	}
