@@ -20,6 +20,7 @@ rules:
       - get
       - list
       - update
+      - patch
       - watch
   # The node-operator watches DrainerConfig CRs and updates their status. It
   # must not be allowed to create these CRs nor delete them. This responsibility
@@ -32,6 +33,7 @@ rules:
       - get
       - list
       - update
+      - patch
       - watch
   # The node-operator watches secrets in order to create Kubernetes clients for
   # being able to access guest clusters to drain its nodes. It must not be
