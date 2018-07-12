@@ -109,7 +109,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "drainer"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -121,7 +121,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "5ed12fb6317db3c592f955b2b86cceccde945e42"
+  revision = "4f54cccfdd4bfe6c159488247ef1fcc24715b9c0"
 
 [[projects]]
   branch = "master"
@@ -133,7 +133,7 @@
   branch = "master"
   name = "github.com/giantswarm/errors"
   packages = ["guest"]
-  revision = "1aa8d2252e47796136320c0cf768b79fb3d969d6"
+  revision = "55d763df908376a858290cf4009e8bd1c768ccef"
 
 [[projects]]
   branch = "master"
@@ -529,7 +529,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
+  revision = "cffdcf672aee934982473246bc7e9a8ba446aa9b"
 
 [[projects]]
   branch = "master"
@@ -1095,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5820a992b9cf097ce3eb7fd64b0dea034845ac53b4bb7b868cac09c8d77ebf4f"
+  inputs-digest = "3dd6ec732fd1ade7e625ee0d56d0391796c12d1ea3417079efe23c48865fedfb"
   solver-name = "gps-cdcl"
   solver-version = 1
