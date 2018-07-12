@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +31,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if drainerConfig.Status.HasFinalCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state")
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
 
 		return nil
@@ -73,7 +71,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state")
-			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
 
 			return nil
