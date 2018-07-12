@@ -33,8 +33,9 @@ type Service struct {
 	Healthz *healthz.Service
 	Version *version.Service
 
-	bootOnce       sync.Once
-	nodeController *controller.Node
+	bootOnce          sync.Once
+	drainerController *controller.Drainer
+	nodeController    *controller.Node
 }
 
 func New(config Config) (*Service, error) {
@@ -95,6 +96,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var drainerController *controller.Drainer
+	{
+		c := controller.DrainerConfig{
+			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+			Logger:       config.Logger,
+
+			ProjectName: config.Name,
+		}
+
+		drainerController, err = controller.NewDrainer(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var nodeController *controller.Node
 	{
 		c := controller.NodeConfig{
@@ -132,8 +150,9 @@ func New(config Config) (*Service, error) {
 		Healthz: healthzService,
 		Version: versionService,
 
-		bootOnce:       sync.Once{},
-		nodeController: nodeController,
+		bootOnce:          sync.Once{},
+		drainerController: drainerController,
+		nodeController:    nodeController,
 	}
 
 	return newService, nil
@@ -141,6 +160,7 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
+		go s.drainerController.Boot()
 		go s.nodeController.Boot()
 	})
 }
