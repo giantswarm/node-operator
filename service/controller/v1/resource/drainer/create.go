@@ -3,7 +3,9 @@ package drainer
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
@@ -32,10 +34,35 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	clusterID := key.ClusterIDFromDrainerConfig(drainerConfig)
 
-	if drainerConfig.Status.HasFinalCondition() {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "node config status already has final state", "clusterID", clusterID)
+	if drainerConfig.Status.HasDrainedCondition() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has drained condition", "clusterID", clusterID)
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
+
+		return nil
+	}
+
+	if drainerConfig.Status.HasTimeoutCondition() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has timeout condition", "clusterID", clusterID)
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
+
+		return nil
+	}
+
+	if drainingTimedOut(drainerConfig, time.Now(), 30*time.Minute) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to timeout condition")
+
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
+
+		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).Update(&drainerConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to final condition")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
 
 		return nil
 	}
@@ -61,20 +88,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if apierrors.IsNotFound(err) {
 			// It might happen the node we want to drain got already removed. This
 			// might even be due to human intervention. In case we cannot find the
-			// node we assume the draining was successful and set the node config
+			// node we assume the draining was successful and set the drainer config
 			// status accordingly.
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found", "clusterID", clusterID)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "setting node config status of guest cluster node to final state", "clusterID", clusterID)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to drained condition", "clusterID", clusterID)
 
-			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewFinalCondition())
+			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
 			_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).Update(&drainerConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "set node config status of guest cluster node to final state", "clusterID", clusterID)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to drained condition", "clusterID", clusterID)
 			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
@@ -145,17 +172,25 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
 
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewFinalCondition())
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
 		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).Update(&drainerConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set node config status of node in guest cluster '%s' to final state", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)), "clusterID", clusterID)
 	}
 
 	return nil
+}
+
+func drainingTimedOut(drainerConfig v1alpha1.DrainerConfig, now time.Time, timeout time.Duration) bool {
+	if drainerConfig.GetCreationTimestamp().Add(timeout).After(now) {
+		return false
+	}
+
+	return true
 }
