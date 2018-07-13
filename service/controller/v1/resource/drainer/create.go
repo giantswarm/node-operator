@@ -7,7 +7,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,7 +35,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if drainerConfig.Status.HasDrainedCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has drained condition", "clusterID", clusterID)
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
 		return nil
@@ -44,7 +42,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if drainerConfig.Status.HasTimeoutCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has timeout condition", "clusterID", clusterID)
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
 		return nil
@@ -63,7 +60,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to final condition")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to timeout condition")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
 
 		return nil
@@ -104,7 +101,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to drained condition", "clusterID", clusterID)
-			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object", "clusterID", clusterID)
 
 			return nil
@@ -171,6 +167,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads", "clusterID", clusterID)
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads", "clusterID", clusterID)
+	}
+
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting guest cluster node from Kubernetes API")
+
+		n := key.NodeNameFromDrainerConfig(drainerConfig)
+		o := &apismetav1.DeleteOptions{}
+		err := k8sClient.CoreV1().Nodes().Delete(n, o)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted guest cluster node from Kubernetes API")
 	}
 
 	{
