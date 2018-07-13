@@ -121,7 +121,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "4f54cccfdd4bfe6c159488247ef1fcc24715b9c0"
+  revision = "343bac0517a0df7b1ddf604b3049c6dd589ad235"
 
 [[projects]]
   branch = "master"
@@ -145,7 +145,7 @@
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "b48ae48e60b4891baf6f3ab23eff9ed469532ad0"
+  revision = "84047810776e7ffb8484cc6efe2ccac2b73d1246"
 
 [[projects]]
   branch = "master"
@@ -157,7 +157,7 @@
   branch = "master"
   name = "github.com/giantswarm/k8sportforward"
   packages = ["."]
-  revision = "00489ad5cc81835cf9bf13e9dfa538fa6f3f729e"
+  revision = "5f1a090222cf476117c0d42705846928c577aa5b"
 
 [[projects]]
   branch = "master"
@@ -444,7 +444,7 @@
   branch = "master"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
-  revision = "99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c"
+  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
 
 [[projects]]
   branch = "master"
@@ -529,7 +529,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "cffdcf672aee934982473246bc7e9a8ba446aa9b"
+  revision = "a45b4abe13d2d168ea021b6ec8d8798fe33a7cc9"
 
 [[projects]]
   branch = "master"
