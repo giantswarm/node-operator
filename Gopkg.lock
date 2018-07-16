@@ -133,7 +133,7 @@
   branch = "master"
   name = "github.com/giantswarm/errors"
   packages = ["guest"]
-  revision = "55d763df908376a858290cf4009e8bd1c768ccef"
+  revision = "823a4ad2876212aba33bcf7ad831f93baffcbdbb"
 
 [[projects]]
   branch = "master"
@@ -205,7 +205,7 @@
   revision = "39f8cfb7c2583edb28552d9e4b12193e5bddaf60"
 
 [[projects]]
-  branch = "master"
+  branch = "merge-router"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -221,7 +221,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "09dd03341dd8ade7ad177c5cce4a412a7a9a4d3b"
+  revision = "eca84cd810cfa584bdc507b55dbbdf356c77e176"
 
 [[projects]]
   branch = "master"
@@ -278,8 +278,8 @@
     "proto",
     "sortkeys"
   ]
-  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
-  version = "v1.0.0"
+  revision = "7d68e886eac4f7e34d0d82241a6273d6c304c5cf"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -399,7 +399,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "bb74f1db0675b241733089d5a1faa5dd8b0ef57b"
+  revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
 
 [[projects]]
   name = "github.com/modern-go/concurrent"
@@ -438,7 +438,7 @@
     "prometheus",
     "prometheus/promhttp"
   ]
-  revision = "ee1c9d7e23df7f011bdf6f12a5c9e7f0ae10a1fe"
+  revision = "bcbbc08eb2ddff3af83bbf11e7ec13b4fd730b6e"
 
 [[projects]]
   branch = "master"
@@ -529,7 +529,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "a45b4abe13d2d168ea021b6ec8d8798fe33a7cc9"
+  revision = "d0887baf81f4598189d4e12a37c6da86f0bba4d0"
 
 [[projects]]
   branch = "master"
@@ -544,7 +544,7 @@
     "unix",
     "windows"
   ]
-  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
+  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -642,7 +642,6 @@
   version = "v2.2.1"
 
 [[projects]]
-  branch = "release-1.10"
   name = "k8s.io/api"
   packages = [
     "admissionregistration/v1alpha1",
@@ -675,6 +674,7 @@
     "storage/v1beta1"
   ]
   revision = "8b7507fac302640dd5f1efbf9643199952cc58db"
+  version = "kubernetes-1.10.4"
 
 [[projects]]
   name = "k8s.io/apiextensions-apiserver"
@@ -1095,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3dd6ec732fd1ade7e625ee0d56d0391796c12d1ea3417079efe23c48865fedfb"
+  inputs-digest = "b7ad646eee232d766110c34458197e81800122a214277b259ae9e294fa173301"
   solver-name = "gps-cdcl"
   solver-version = 1
