@@ -35,14 +35,15 @@ type Service struct {
 
 	bootOnce          sync.Once
 	drainerController *controller.Drainer
+	nodeController    *controller.Node
 }
 
 func New(config Config) (*Service, error) {
 	if config.Flag == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "config.Flag must not be empty")
 	}
 	if config.Viper == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "config.Viper must not be empty")
 	}
 
 	var err error
@@ -112,6 +113,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var nodeController *controller.Node
+	{
+		c := controller.NodeConfig{
+			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+			Logger:       config.Logger,
+
+			ProjectName: config.Name,
+		}
+
+		nodeController, err = controller.NewNode(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		c := version.DefaultConfig()
@@ -134,6 +152,7 @@ func New(config Config) (*Service, error) {
 
 		bootOnce:          sync.Once{},
 		drainerController: drainerController,
+		nodeController:    nodeController,
 	}
 
 	return newService, nil
@@ -142,5 +161,6 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.drainerController.Boot()
+		go s.nodeController.Boot()
 	})
 }
