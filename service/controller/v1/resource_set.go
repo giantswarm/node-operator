@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -8,6 +9,7 @@ import (
 	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/micrologger/loggermeta"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
@@ -116,10 +118,24 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return false
 	}
 
+	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		nodeConfig, err := key.ToCustomObject(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		lm := loggermeta.New()
+		lm.KeyVals["cluster"] = key.ClusterID(nodeConfig)
+		lm.KeyVals["node"] = key.NodeName(nodeConfig)
+
+		return loggermeta.NewContext(ctx, lm), nil
+	}
+
 	var resourceSet *controller.ResourceSet
 	{
 		c := controller.ResourceSetConfig{
 			Handles:   handlesFunc,
+			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
 		}
