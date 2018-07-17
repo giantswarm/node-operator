@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -8,6 +9,7 @@ import (
 	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/micrologger/loggermeta"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
@@ -111,10 +113,24 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 		return false
 	}
 
+	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		drainerConfig, err := key.ToDrainerConfig(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		lm := loggermeta.New()
+		lm.KeyVals["cluster"] = key.ClusterIDFromDrainerConfig(drainerConfig)
+		lm.KeyVals["node"] = key.NodeNameFromDrainerConfig(drainerConfig)
+
+		return loggermeta.NewContext(ctx, lm), nil
+	}
+
 	var drainerResourceSet *controller.ResourceSet
 	{
 		c := controller.ResourceSetConfig{
 			Handles:   handlesFunc,
+			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
 		}
