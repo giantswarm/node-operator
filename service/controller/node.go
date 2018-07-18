@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -54,7 +56,7 @@ func NewNode(config NodeConfig) (*Node, error) {
 			Watcher: config.G8sClient.CoreV1alpha1().NodeConfigs(""),
 
 			RateWait:     informer.DefaultRateWait,
-			ResyncPeriod: informer.DefaultResyncPeriod,
+			ResyncPeriod: 30 * time.Second,
 		}
 
 		newInformer, err = informer.New(c)
@@ -65,16 +67,13 @@ func NewNode(config NodeConfig) (*Node, error) {
 
 	var v1ResourceSet *controller.ResourceSet
 	{
-		c := v1.ResourceSetConfig{}
+		c := v1.ResourceSetConfig{
+			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 
-		c.G8sClient = config.G8sClient
-		c.K8sClient = config.K8sClient
-		c.Logger = config.Logger
-
-		c.HandledVersionBundles = []string{
-			"0.1.0",
+			ProjectName: config.ProjectName,
 		}
-		c.ProjectName = config.ProjectName
 
 		v1ResourceSet, err = v1.NewResourceSet(c)
 		if err != nil {

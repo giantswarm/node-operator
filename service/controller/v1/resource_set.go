@@ -17,10 +17,7 @@ import (
 
 	"github.com/giantswarm/node-operator/service/controller/v1/key"
 	"github.com/giantswarm/node-operator/service/controller/v1/resource/node"
-)
-
-const (
-	ResourceRetries uint64 = 3
+	"github.com/giantswarm/node-operator/service/controller/v1/resource/nodestatus"
 )
 
 type ResourceSetConfig struct {
@@ -28,8 +25,7 @@ type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	HandledVersionBundles []string
-	ProjectName           string
+	ProjectName string
 }
 
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
@@ -79,8 +75,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var nodeStatusResource controller.Resource
+	{
+		c := nodestatus.Config{
+			GuestCluster: guestCluster,
+			G8sClient:    config.G8sClient,
+			Logger:       config.Logger,
+		}
+
+		nodeStatusResource, err = nodestatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		nodeResource,
+		nodeStatusResource,
 	}
 
 	{

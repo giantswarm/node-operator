@@ -93,6 +93,7 @@ type NodeConfigSpecVersionBundle struct {
 
 type NodeConfigStatus struct {
 	Conditions []NodeConfigStatusCondition `json:"conditions" yaml:"conditions"`
+	Versions   []NodeConfigStatusVersion   `json:"versions" yaml:"versions"`
 }
 
 // NodeConfigStatusCondition expresses a condition in which a node may is.
@@ -101,6 +102,15 @@ type NodeConfigStatusCondition struct {
 	Status string `json:"status" yaml:"status"`
 	// Type may be Pending, Ready, Draining, Drained.
 	Type string `json:"type" yaml:"type"`
+}
+
+// NodeConfigStatusVersion expresses the version in which a guest cluster node
+// is.
+type NodeConfigStatusVersion struct {
+	// Name is the node name, e.g. al9qy-worker-000001.
+	Name string `json:"name" yaml:"name"`
+	// Semver is some semver version, e.g. 1.0.0.
+	Semver string `json:"semver" yaml:"semver"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
