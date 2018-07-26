@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,19 +34,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if drainerConfig.Status.HasDrainedCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has drained condition")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
 	}
 
 	if drainerConfig.Status.HasTimeoutCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has timeout condition")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
 	}
 
-	if drainingTimedOut(drainerConfig, time.Now(), 30*time.Minute) {
+	if drainingTimedOut(drainerConfig, time.Now(), 10*time.Minute) {
 		// TODO emit metrics
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
@@ -59,7 +60,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to timeout condition")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
 	}
@@ -82,7 +83,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		p := []byte(UnschedulablePatch)
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
-		if apierrors.IsNotFound(err) {
+		if guest.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
+		} else if apierrors.IsNotFound(err) {
 			// It might happen the node we want to drain got already removed. This
 			// might even be due to human intervention. In case we cannot find the
 			// node we assume the draining was successful and set the drainer config
@@ -99,7 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to drained condition")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource for custom object")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
 		} else if err != nil {

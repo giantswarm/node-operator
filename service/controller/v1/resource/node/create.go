@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/api/core/v1"
@@ -50,7 +51,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		p := []byte(UnschedulablePatch)
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
-		if apierrors.IsNotFound(err) {
+		if guest.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
+		} else if apierrors.IsNotFound(err) {
 			// It might happen the node we want to drain got already removed. This
 			// might even be due to human intervention. In case we cannot find the
 			// node we assume the draining was successful and set the node config
