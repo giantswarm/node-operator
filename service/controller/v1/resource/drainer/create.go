@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -24,8 +24,6 @@ const (
 	UnschedulablePatch = `{"spec":{"unschedulable":true}}`
 )
 
-// EnsureCreated represents the node resource implementation to manage on demand
-// node draining for guest clusters.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	drainerConfig, err := key.ToDrainerConfig(obj)
 	if err != nil {
@@ -123,7 +121,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeNameFromDrainerConfig(drainerConfig),
 		})
-		listOptions := apismetav1.ListOptions{
+		listOptions := metav1.ListOptions{
 			FieldSelector: fieldSelector.String(),
 		}
 		podList, err := k8sClient.CoreV1().Pods(v1.NamespaceAll).List(listOptions)
@@ -147,7 +145,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
 
 		for _, p := range customPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -162,7 +160,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
 
 		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -171,19 +169,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
-	}
-
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting guest cluster node from Kubernetes API")
-
-		n := key.NodeNameFromDrainerConfig(drainerConfig)
-		o := &apismetav1.DeleteOptions{}
-		err := k8sClient.CoreV1().Nodes().Delete(n, o)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted guest cluster node from Kubernetes API")
 	}
 
 	{
