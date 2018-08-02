@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -68,7 +69,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		i := key.ClusterIDFromDrainerConfig(drainerConfig)
 		e := key.ClusterEndpointFromDrainerConfig(drainerConfig)
 		k8sClient, err = r.guestCluster.NewK8sClient(ctx, i, e)
-		if err != nil {
+		if guestcluster.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "fetching certificates timed out")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
