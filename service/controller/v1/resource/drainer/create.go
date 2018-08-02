@@ -31,13 +31,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if drainerConfig.Status.HasDrainedCondition() {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has drained condition")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil
-	}
-
 	if drainerConfig.Status.HasTimeoutCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has timeout condition")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -59,6 +52,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to timeout condition")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil
+	}
+
+	// Checking the drained condition must be done after the timeout condition is
+	// managed. This ensures even CRs having a drained condition get the timeout
+	// condition applied. This is to make the provider operators always cleanup
+	// the CRs in case they exist for too long.
+	if drainerConfig.Status.HasDrainedCondition() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config status has drained condition")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
