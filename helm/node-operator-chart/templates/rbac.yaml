@@ -69,7 +69,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: node-operator
-    namespace: giantswarm
+    namespace: {{ .Values.namespace }}
 roleRef:
   kind: ClusterRole
   name: node-operator
@@ -96,7 +96,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: node-operator
-    namespace: giantswarm
+    namespace: {{ .Values.namespace }}
 roleRef:
   kind: ClusterRole
   name: node-operator-psp

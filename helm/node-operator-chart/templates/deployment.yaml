@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: node-operator
-  namespace: giantswarm
+  namespace: {{ .Values.namespace }}
   labels:
     app: node-operator
 spec:
