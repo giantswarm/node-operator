@@ -52,7 +52,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
 		if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available", "stack", fmt.Sprintf("%#q", err))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
