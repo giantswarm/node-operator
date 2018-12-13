@@ -67,7 +67,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
 
-			_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).Update(&customObject)
+			_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).UpdateStatus(&customObject)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -147,7 +147,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		customObject.Status.Conditions = append(customObject.Status.Conditions, customObject.Status.NewFinalCondition())
 
-		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).Update(&customObject)
+		_, err := r.g8sClient.CoreV1alpha1().NodeConfigs(customObject.GetNamespace()).UpdateStatus(&customObject)
 		if err != nil {
 			return microerror.Mask(err)
 		}
