@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -160,7 +161,7 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.drainerController.Boot()
-		go s.nodeController.Boot()
+		go s.drainerController.Boot(context.Background())
+		go s.nodeController.Boot(context.Background())
 	})
 }
