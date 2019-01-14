@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/node-operator/service/controller/v1/key"
+	"github.com/giantswarm/node-operator/service/controller/v2/key"
 )
 
 const (

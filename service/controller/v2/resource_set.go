@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"context"
@@ -15,8 +15,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/node-operator/service/controller/v1/key"
-	"github.com/giantswarm/node-operator/service/controller/v1/resource/node"
+	"github.com/giantswarm/node-operator/service/controller/v2/key"
+	"github.com/giantswarm/node-operator/service/controller/v2/resource/node"
 )
 
 const (
