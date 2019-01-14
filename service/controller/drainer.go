@@ -14,6 +14,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/service/controller/v1"
+	"github.com/giantswarm/node-operator/service/controller/v2"
 )
 
 type DrainerConfig struct {
@@ -80,6 +81,21 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
+	var v2ResourceSet *controller.ResourceSet
+	{
+		c := v2.DrainerResourceSetConfig{
+			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		v2ResourceSet, err = v2.NewDrainerResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var operatorkitController *controller.Controller
 	{
@@ -90,6 +106,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				v1ResourceSet,
+				v2ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
