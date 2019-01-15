@@ -38,10 +38,6 @@ required = [
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
-  name = "github.com/giantswarm/tenantcluster"
-
-[[constraint]]
   branch = "master"
   name = "github.com/giantswarm/microendpoint"
 
@@ -56,6 +52,10 @@ required = [
 [[constraint]]
   branch = "kubernetes-1.13.2"
   name = "github.com/giantswarm/operatorkit"
+
+[[constraint]]
+  branch = "kubernetes-1.13.2"
+  name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
   name = "k8s.io/api"

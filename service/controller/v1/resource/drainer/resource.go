@@ -2,9 +2,9 @@ package drainer
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 )
 
 const (
@@ -12,32 +12,32 @@ const (
 )
 
 type Config struct {
-	GuestCluster guestcluster.Interface
-	G8sClient    versioned.Interface
-	Logger       micrologger.Logger
+	G8sClient     versioned.Interface
+	Logger        micrologger.Logger
+	TenantCluster tenantcluster.Interface
 }
 
 type Resource struct {
-	guestCluster guestcluster.Interface
-	g8sClient    versioned.Interface
-	logger       micrologger.Logger
+	g8sClient     versioned.Interface
+	logger        micrologger.Logger
+	tenantCluster tenantcluster.Interface
 }
 
 func New(c Config) (*Resource, error) {
-	if c.GuestCluster == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.GuestCluster must not be empty", c)
-	}
 	if c.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", c)
 	}
 	if c.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", c)
 	}
+	if c.TenantCluster == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TenantCluster must not be empty", c)
+	}
 
 	r := &Resource{
-		guestCluster: c.GuestCluster,
-		g8sClient:    c.G8sClient,
-		logger:       c.Logger,
+		g8sClient:     c.G8sClient,
+		logger:        c.Logger,
+		tenantCluster: c.TenantCluster,
 	}
 
 	return r, nil
