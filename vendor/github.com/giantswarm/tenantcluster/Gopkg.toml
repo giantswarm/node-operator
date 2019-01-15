@@ -1,6 +1,6 @@
 # Gopkg.toml example
 #
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
 # for detailed Gopkg.toml documentation.
 #
 # required = ["github.com/user/thing/cmd/thing"]
@@ -16,14 +16,18 @@
 #   source = "github.com/myfork/project2"
 #
 # [[override]]
-#  name = "github.com/x/y"
-#  version = "2.4.0"
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
 
 
 
 required = [
   "github.com/docker/distribution/reference",
-  "k8s.io/api/core/v1",
   "k8s.io/apiserver/pkg/endpoints/request"
 ]
 
@@ -39,11 +43,11 @@ required = [
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/tenantcluster"
+  name = "github.com/giantswarm/certs"
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/microendpoint"
+  name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
   branch = "master"
@@ -54,27 +58,7 @@ required = [
   name = "github.com/giantswarm/micrologger"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/operatorkit"
-
-[[constraint]]
-  name = "github.com/spf13/viper"
-  version = "1.0.0"
-
-[[constraint]]
-  name = "k8s.io/api"
-  version = "kubernetes-1.10.4"
-
-[[constraint]]
   name = "k8s.io/apiserver"
-  version = "kubernetes-1.10.4"
-
-[[constraint]]
-  name = "k8s.io/apiextensions-apiserver"
-  version = "kubernetes-1.10.4"
-
-[[constraint]]
-  name = "k8s.io/apimachinery"
   version = "kubernetes-1.10.4"
 
 [[constraint]]

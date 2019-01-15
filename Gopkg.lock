@@ -256,6 +256,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:ab185645b0028c120f12fc7d55c94a4cc45d3bea808613b8f6eff2fbfa4776a9"
+  name = "github.com/giantswarm/tenantcluster"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3a8ad1e20481bf6976c3b509caa64247472f7029"
+
+[[projects]]
+  branch = "master"
   digest = "1:e9b2472b310a35332ee67b9189452b51c19599d249bd25440365cd97c97d5a98"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
@@ -669,14 +677,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e5bf64d17781e7286a6da4803e459c4b01eca1ddc48fe6cd18db31f1b8b8ab2b"
+  digest = "1:0150ad9329793acacd98bcbd88492d9e4731824b5d3fbc73a8a1b45eb21acf6b"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "2be51725563103c17124a318f1745b66f2347acb"
+  revision = "a457fd036447854c0c02e89ea439481bdcf941a2"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -997,6 +1005,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/spf13/viper",
     "k8s.io/api/core/v1",
