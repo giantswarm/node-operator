@@ -31,10 +31,10 @@ func New(config Config) (microserver.Server, error) {
 
 	var endpointCollection *endpoint.Endpoint
 	{
-		c := endpoint.Config{}
-
-		c.Logger = config.Logger
-		c.Service = config.Service
+		c := endpoint.Config{
+			Logger:  config.Logger,
+			Service: config.Service,
+		}
 
 		endpointCollection, err = endpoint.New(c)
 		if err != nil {

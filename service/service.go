@@ -16,7 +16,6 @@ import (
 
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/service/controller"
-	"github.com/giantswarm/node-operator/service/healthz"
 )
 
 type Config struct {
@@ -31,7 +30,6 @@ type Config struct {
 }
 
 type Service struct {
-	Healthz *healthz.Service
 	Version *version.Service
 
 	bootOnce          sync.Once
@@ -41,10 +39,10 @@ type Service struct {
 
 func New(config Config) (*Service, error) {
 	if config.Flag == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Flag must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
 	}
 	if config.Viper == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Viper must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
 	}
 
 	var err error
@@ -84,19 +82,6 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var healthzService *healthz.Service
-	{
-		c := healthz.Config{}
-
-		c.K8sClient = k8sClient
-		c.Logger = config.Logger
-
-		healthzService, err = healthz.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var drainerController *controller.Drainer
 	{
 		c := controller.DrainerConfig{
@@ -133,13 +118,13 @@ func New(config Config) (*Service, error) {
 
 	var versionService *version.Service
 	{
-		c := version.DefaultConfig()
-
-		c.Description = config.Description
-		c.GitCommit = config.GitCommit
-		c.Name = config.Name
-		c.Source = config.Source
-		c.VersionBundles = NewVersionBundles()
+		c := version.Config{
+			Description:    config.Description,
+			GitCommit:      config.GitCommit,
+			Name:           config.Name,
+			Source:         config.Source,
+			VersionBundles: NewVersionBundles(),
+		}
 
 		versionService, err = version.New(c)
 		if err != nil {
@@ -148,7 +133,6 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		Healthz: healthzService,
 		Version: versionService,
 
 		bootOnce:          sync.Once{},
