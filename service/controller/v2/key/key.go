@@ -3,6 +3,7 @@ package key
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"strings"
 )
 
 func ClusterAPIEndpoint(customObject v1alpha1.NodeConfig) string {
@@ -19,6 +20,15 @@ func ClusterID(customObject v1alpha1.NodeConfig) string {
 
 func ClusterIDFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
 	return drainerConfig.Spec.Guest.Cluster.ID
+}
+
+func IsCriticalPod(podName string) bool {
+	r := false
+	r = r || strings.HasPrefix(podName, "k8s-api-server")
+	r = r || strings.HasPrefix(podName, "k8s-controller-manager")
+	r = r || strings.HasPrefix(podName, "k8s-scheduler")
+
+	return r
 }
 
 func NodeName(customObject v1alpha1.NodeConfig) string {

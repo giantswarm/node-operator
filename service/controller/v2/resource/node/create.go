@@ -13,7 +13,10 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/node-operator/service/controller/v1/key"
+	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/node-operator/service/controller/v2/key"
+	"k8s.io/client-go/kubernetes"
+	"sync"
 )
 
 const (
@@ -101,6 +104,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		for _, p := range podList.Items {
+			if key.IsCriticalPod(p.Name) {
+				// ignore critical pods (api, controller-manager and scheduler)
+				// they are static pods so kubelet will recreate them anyway and it can cause other issues
+				continue
+			}
 			if p.GetNamespace() == "kube-system" {
 				systemPods = append(systemPods, p)
 			} else {
@@ -115,12 +123,25 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if len(customPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
 
+		var wg sync.WaitGroup
 		for _, p := range customPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
+			// delete each pod in separate goroutine to avoid blocking
+			wg.Add(1)
+			go func(k8sClient kubernetes.Interface, pod v1.Pod) {
+				defer wg.Done()
+				o := func() error {
+					return EvictPod(k8sClient, pod)
+				}
+				b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
+				n := backoff.NewNotifier(r.logger, ctx)
+				err = backoff.RetryNotify(o, b, n)
+
+				if err != nil {
+					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to evict pod %s/%s", p.Namespace, p.Name), "stack", err)
+				}
+			}(k8sClient, p)
 		}
+		wg.Wait()
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
 	} else {
@@ -130,12 +151,25 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if len(systemPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
 
+		var wg sync.WaitGroup
 		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
+			// delete each pod in separate goroutine to avoid blocking
+			wg.Add(1)
+			go func(k8sClient kubernetes.Interface, pod v1.Pod) {
+				defer wg.Done()
+				o := func() error {
+					return EvictPod(k8sClient, pod)
+				}
+				b := backoff.NewExponential(backoff.LongMaxWait, backoff.LongMaxInterval)
+				n := backoff.NewNotifier(r.logger, context.Background())
+				err = backoff.RetryNotify(o, b, n)
+
+				if err != nil {
+					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to evict pod %s/%s", p.Namespace, p.Name), "stack", err)
+				}
+			}(k8sClient, p)
 		}
+		wg.Wait()
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
 	} else {
