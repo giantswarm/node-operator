@@ -156,14 +156,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c47459aa2f876155168ba26b05f82b8854ad9081b13cfbd3562cb9f935e53dea"
-  name = "github.com/giantswarm/guestcluster"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c2165954af1d7b6dc8300cc69a11227e1b943f72"
-
-[[projects]]
-  branch = "master"
   digest = "1:3aa0394eee3f526df21cedb0fe9f137519712adee159e44374441ed1e3bf5c02"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
@@ -988,7 +980,6 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/errors/guest",
-    "github.com/giantswarm/guestcluster",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
     "github.com/giantswarm/microendpoint/service/version",
