@@ -2,15 +2,13 @@ package endpoint
 
 import (
 	"github.com/giantswarm/microendpoint/endpoint/healthz"
-	"github.com/giantswarm/microendpoint/endpoint/version"
-	healthzservice "github.com/giantswarm/microendpoint/service/healthz"
+	versionendpoint "github.com/giantswarm/microendpoint/endpoint/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
 	"github.com/giantswarm/node-operator/service"
 )
 
-// Config represents the configuration used to create a endpoint.
 type Config struct {
 	Logger  micrologger.Logger
 	Service *service.Service
@@ -19,20 +17,16 @@ type Config struct {
 // Endpoint is the endpoint collection.
 type Endpoint struct {
 	Healthz *healthz.Endpoint
-	Version *version.Endpoint
+	Version *versionendpoint.Endpoint
 }
 
-// New creates a new configured endpoint.
 func New(config Config) (*Endpoint, error) {
 	var err error
 
 	var healthzEndpoint *healthz.Endpoint
 	{
-		c := healthz.Config{}
-
-		c.Logger = config.Logger
-		c.Services = []healthzservice.Service{
-			config.Service.Healthz.K8s,
+		c := healthz.Config{
+			Logger: config.Logger,
 		}
 
 		healthzEndpoint, err = healthz.New(c)
@@ -41,23 +35,23 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
-	var versionEndpoint *version.Endpoint
+	var versionEndpoint *versionendpoint.Endpoint
 	{
-		c := version.Config{}
+		c := versionendpoint.Config{
+			Logger:  config.Logger,
+			Service: config.Service.Version,
+		}
 
-		c.Logger = config.Logger
-		c.Service = config.Service.Version
-
-		versionEndpoint, err = version.New(c)
+		versionEndpoint, err = versionendpoint.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	newEndpoint := &Endpoint{
+	e := &Endpoint{
 		Healthz: healthzEndpoint,
 		Version: versionEndpoint,
 	}
 
-	return newEndpoint, nil
+	return e, nil
 }
