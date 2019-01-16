@@ -42,7 +42,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	k8sClient, err := r.guestCluster.NewK8sClient(ctx, key.ClusterID(customObject), key.ClusterAPIEndpoint(customObject))
+	k8sClient, err := r.tenantCluster.NewK8sClient(ctx, key.ClusterID(customObject), key.ClusterAPIEndpoint(customObject))
 	if err != nil {
 		return microerror.Mask(err)
 	}

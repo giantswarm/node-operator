@@ -39,11 +39,7 @@ required = [
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/guestcluster"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/k8shealthz"
+  name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
   branch = "master"

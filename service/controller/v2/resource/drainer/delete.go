@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/tenantcluster"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/node-operator/service/controller/v1/key"
+	"github.com/giantswarm/node-operator/service/controller/v2/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
@@ -23,8 +23,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	{
 		i := key.ClusterIDFromDrainerConfig(drainerConfig)
 		e := key.ClusterEndpointFromDrainerConfig(drainerConfig)
-		k8sClient, err = r.guestCluster.NewK8sClient(ctx, i, e)
-		if guestcluster.IsTimeout(err) {
+		k8sClient, err = r.tenantCluster.NewK8sClient(ctx, i, e)
+		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "fetching certificates timed out")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 

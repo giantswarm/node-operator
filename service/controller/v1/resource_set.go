@@ -6,13 +6,13 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/micrologger/loggermeta"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/service/controller/v1/key"
@@ -50,16 +50,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestCluster guestcluster.Interface
+	var tenantCluster tenantcluster.Interface
 	{
-		c := guestcluster.Config{
+		c := tenantcluster.Config{
 			CertsSearcher: certsSearcher,
 			Logger:        config.Logger,
 
 			CertID: certs.NodeOperatorCert,
 		}
 
-		guestCluster, err = guestcluster.New(c)
+		tenantCluster, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -68,9 +68,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var nodeResource controller.Resource
 	{
 		c := node.Config{
-			GuestCluster: guestCluster,
-			G8sClient:    config.G8sClient,
-			Logger:       config.Logger,
+			G8sClient:     config.G8sClient,
+			Logger:        config.Logger,
+			TenantCluster: tenantCluster,
 		}
 
 		nodeResource, err = node.New(c)
