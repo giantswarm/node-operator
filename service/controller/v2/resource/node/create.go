@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/node-operator/service/controller/v2/key"
 	"k8s.io/client-go/kubernetes"
 	"sync"
+	"time"
 )
 
 const (
@@ -122,6 +123,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if len(customPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
+		t1 := time.Now()
 
 		var wg sync.WaitGroup
 		for _, p := range customPods {
@@ -143,13 +145,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 		wg.Wait()
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted all pods running custom workloads in %.2fs", time.Since(t1).Seconds()))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
 	}
 
 	if len(systemPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
+		t1 := time.Now()
 
 		var wg sync.WaitGroup
 		for _, p := range systemPods {
@@ -171,7 +174,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 		wg.Wait()
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted all pods running system workloads in %.2fs", time.Since(t1).Seconds()))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
