@@ -10,3 +10,12 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var podNotTerminatedError = &microerror.Error{
+	Kind: "podNotTerminatedError",
+}
+
+// IsInvalidConfig asserts invalidConfigError.
+func IsPodNotTerminatedError(err error) bool {
+	return microerror.Cause(err) == podNotTerminatedError
+}

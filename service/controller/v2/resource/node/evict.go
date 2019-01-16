@@ -3,18 +3,18 @@ package node
 import (
 	"time"
 
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
+	"k8s.io/api/core/v1"
 	"k8s.io/api/policy/v1beta1"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/kubernetes"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
 	waitInterval = time.Millisecond * 500 // check every 500ms
-	waitTimeout  = time.Minute * 2 // timeout after 2 min
+	waitTimeout  = time.Minute * 2        // timeout after 2 min
 )
 
 // evict pod from node
@@ -41,17 +41,21 @@ func EvictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 
 	getOpts := apismetav1.GetOptions{}
 	// wait for successful termination
-	err = wait.PollImmediate(waitInterval, waitTimeout, func() (bool, error) {
+	b := backoff.NewConstant(waitTimeout, waitInterval)
+	o := func() error {
 		p, err := k8sClient.CoreV1().Pods(pod.Namespace).Get(pod.Name, getOpts)
 		if apierrors.IsNotFound(err) || (p != nil && p.ObjectMeta.UID != pod.ObjectMeta.UID) {
 			// pod is no longer in api, we can exit
-			return true, nil
+			return nil
 		} else if err != nil {
-			return false, err
+			return err
 		}
-		return false, nil
-	})
+		return podNotTerminatedError
+	}
+	err = backoff.Retry(o, b)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	return nil
 }
-
