@@ -14,7 +14,7 @@ import (
 
 const (
 	waitInterval = time.Millisecond * 500 // check every 500ms
-	waitTimeout  = time.Minute * 2        // timeout after 2 min
+	waitTimeout  = time.Minute * 10       // timeout after 2 min
 )
 
 // evict pod from node
