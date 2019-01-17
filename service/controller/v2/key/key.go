@@ -1,9 +1,14 @@
 package key
 
 import (
+	"strings"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"strings"
+	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+
 )
 
 func ClusterAPIEndpoint(customObject v1alpha1.NodeConfig) string {
@@ -27,6 +32,17 @@ func IsCriticalPod(podName string) bool {
 	r = r || strings.HasPrefix(podName, "k8s-api-server")
 	r = r || strings.HasPrefix(podName, "k8s-controller-manager")
 	r = r || strings.HasPrefix(podName, "k8s-scheduler")
+
+	return r
+}
+
+func IsDaemonSetPod(pod v1.Pod) bool {
+	r := false
+	ownerRefrence := metav1.GetControllerOf(&pod)
+
+	if ownerRefrence != nil && ownerRefrence.Name == "DaemonSet" {
+		r = true
+	}
 
 	return r
 }

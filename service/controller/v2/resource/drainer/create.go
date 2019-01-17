@@ -136,6 +136,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		for _, p := range podList.Items {
+			if key.IsCriticalPod(p.Name) {
+				// ignore critical pods (api, controller-manager and scheduler)
+				// they are static pods so kubelet will recreate them anyway and it can cause other issues
+				continue
+			}
+			if key.IsDaemonSetPod(p) {
+				// ignore daemonSet owned pods
+				// daemonSets pod are recreated even on unschedulable node so draining doesn't make sense
+				// we are aligning here with community as 'kubectl drain' also ignore them
+				continue
+			}
+
 			if p.GetNamespace() == "kube-system" {
 				systemPods = append(systemPods, p)
 			} else {
@@ -148,36 +160,37 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if len(customPods) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "evicting all pods running custom workloads")
 
 		for _, p := range customPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
+			err := EvictPod(k8sClient, p)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "send eviction to all pods running custom workloads")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running custom workloads")
 	}
 
 	if len(systemPods) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "evicting all pods running system workloads")
 
 		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
+			err := EvictPod(k8sClient, p)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "send eviction to all pods running system workloads")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running system workloads")
 	}
 
-	{
+	// when all pods are evicted from node, set status to drained
+	if len(systemPods) == 0 && len(customPods) == 0 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
