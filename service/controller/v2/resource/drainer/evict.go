@@ -23,7 +23,6 @@ func EvictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 		},
 		DeleteOptions: deleteOptions,
 	}
-	// evict pod
 	err := k8sClient.PolicyV1beta1().Evictions(eviction.GetNamespace()).Evict(eviction)
 	if err != nil {
 		return microerror.Mask(err)
