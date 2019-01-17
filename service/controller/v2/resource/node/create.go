@@ -14,7 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/node-operator/service/controller/v2/key"
-	"time"
 )
 
 const (
@@ -130,7 +129,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if len(systemPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
-		t1 := time.Now()
 
 		for _, p := range systemPods {
 			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
@@ -139,7 +137,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted all pods running system workloads in %.2fs", time.Since(t1).Seconds()))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running system workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running system workloads")
 	}
