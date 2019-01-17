@@ -147,6 +147,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				// we are aligning here with community as 'kubectl drain' also ignore them
 				continue
 			}
+			if key.IsEvicted(p) {
+				// we dont need to care about already evicted pods
+				continue
+			}
 
 			if p.GetNamespace() == "kube-system" {
 				systemPods = append(systemPods, p)
@@ -169,7 +173,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "send eviction to all pods running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running custom workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running custom workloads")
 	}
@@ -184,13 +188,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "send eviction to all pods running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running system workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running system workloads")
 	}
 
 	// when all pods are evicted from node, set status to drained
-	if len(systemPods) == 0 && len(customPods) == 0 	{
+	if len(systemPods) == 0 && len(customPods) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())

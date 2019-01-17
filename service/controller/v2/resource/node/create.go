@@ -115,16 +115,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if len(customPods) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
-		t1 := time.Now()
 
 		for _, p := range customPods {
-			err := k8sClient.CoreV1().Pods(p.Namespace).Delete(p.Name, &apismetav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted all pods running custom workloads in %.2fs", time.Since(t1).Seconds()))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted all pods running custom workloads")
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be deleted running custom workloads")
 	}
@@ -134,7 +133,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		t1 := time.Now()
 
 		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.Namespace).Delete(p.Name, &apismetav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &apismetav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}

@@ -8,8 +8,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-
-
 // evict pod from node
 func EvictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	var deleteGracePeriod int64 = 60
@@ -21,13 +19,13 @@ func EvictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	}
 	eviction := &v1beta1.Eviction{
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name:      pod.Name,
-			Namespace: pod.Namespace,
+			Name:      pod.GetName(),
+			Namespace: pod.GetNamespace(),
 		},
 		DeleteOptions: deleteOptions,
 	}
 	// evict pod
-	err := k8sClient.PolicyV1beta1().Evictions(eviction.Namespace).Evict(eviction)
+	err := k8sClient.PolicyV1beta1().Evictions(eviction.GetNamespace()).Evict(eviction)
 	if err != nil {
 		return microerror.Mask(err)
 	}

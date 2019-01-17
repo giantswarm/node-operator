@@ -7,8 +7,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-
 )
 
 func ClusterAPIEndpoint(customObject v1alpha1.NodeConfig) string {
@@ -45,6 +43,10 @@ func IsDaemonSetPod(pod v1.Pod) bool {
 	}
 
 	return r
+}
+
+func IsEvicted(pod v1.Pod) bool {
+	return pod.Status.Reason == "Evicted"
 }
 
 func NodeName(customObject v1alpha1.NodeConfig) string {
