@@ -9,7 +9,7 @@ import (
 )
 
 // evict pod from node
-func EvictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
+func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	var deleteGracePeriod int64 = 60
 	if pod.DeletionGracePeriodSeconds != nil && *pod.DeletionGracePeriodSeconds > 0 {
 		deleteGracePeriod = *pod.DeletionGracePeriodSeconds
