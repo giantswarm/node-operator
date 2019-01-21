@@ -175,7 +175,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running custom workloads")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running custom workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods running custom workloads to send evictions to")
 	}
 
 	if len(systemPods) > 0 {
