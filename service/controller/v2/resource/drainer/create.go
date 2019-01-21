@@ -148,7 +148,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				continue
 			}
 			if key.IsEvicted(p) {
-				// we dont need to care about already evicted pods
+				// we don't need to care about already evicted pods
 				continue
 			}
 
@@ -178,7 +178,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running custom workloads")
 	}
 
-	if len(systemPods) > 0 {
+	// evict systemPods after all customPods are evicted
+	if len(systemPods) > 0 && len(customPods) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "evicting all pods running system workloads")
 
 		for _, p := range systemPods {

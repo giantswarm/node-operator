@@ -38,7 +38,7 @@ func IsDaemonSetPod(pod v1.Pod) bool {
 	r := false
 	ownerRefrence := metav1.GetControllerOf(&pod)
 
-	if ownerRefrence != nil && ownerRefrence.Name == "DaemonSet" {
+	if ownerRefrence != nil && ownerRefrence.Kind == "DaemonSet" {
 		r = true
 	}
 
