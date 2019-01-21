@@ -193,7 +193,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods running system workloads to send evictions to")
 	}
 
-	// when all pods are evicted from node, set status to drained
+	// When all pods are evicted from the tenant node, set the CR status to drained.
 	if len(systemPods) == 0 && len(customPods) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
