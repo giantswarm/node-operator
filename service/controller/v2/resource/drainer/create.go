@@ -190,7 +190,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running system workloads")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods to be evicted running system workloads")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no pods running system workloads to send evictions to")
 	}
 
 	// when all pods are evicted from node, set status to drained
