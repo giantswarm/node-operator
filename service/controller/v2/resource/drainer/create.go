@@ -167,7 +167,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sending eviction to all pods running custom workloads")
 
 		for _, p := range customPods {
-			err := EvictPod(k8sClient, p)
+			err := evictPod(k8sClient, p)
 			if err != nil {
 				return microerror.Mask(err)
 			}
