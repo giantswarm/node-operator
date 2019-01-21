@@ -90,9 +90,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 	}
 
 	{
-		c := metricsresource.WrapConfig{
-			Name: config.ProjectName,
-		}
+		c := metricsresource.WrapConfig{}
 
 		resources, err = metricsresource.Wrap(resources, c)
 		if err != nil {
