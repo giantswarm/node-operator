@@ -147,7 +147,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				// we are aligning here with community as 'kubectl drain' also ignore them
 				continue
 			}
-			if key.IsEvicted(p) {
+			if key.IsEvictedPod(p) {
 				// we don't need to care about already evicted pods
 				continue
 			}
