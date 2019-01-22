@@ -14,7 +14,7 @@ func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	if pod.DeletionGracePeriodSeconds != nil && *pod.DeletionGracePeriodSeconds > 0 {
 		deleteGracePeriod = *pod.DeletionGracePeriodSeconds
 	}
-	fmt.Printf("eviction gracePeriod %ds\n", deleteGracePeriod)
+	fmt.Printf("eviction gracePeriod %ds, pod grace period %d\n", deleteGracePeriod, *pod.DeletionGracePeriodSeconds)
 	deleteOptions := &apismetav1.DeleteOptions{
 		GracePeriodSeconds: &deleteGracePeriod,
 	}
