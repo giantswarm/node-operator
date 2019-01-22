@@ -11,10 +11,10 @@ import (
 
 func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	var deleteGracePeriod int64 = 60
-	if pod.DeletionGracePeriodSeconds != nil && *pod.GetDeletionGracePeriodSeconds() > 0 {
-		deleteGracePeriod = *pod.GetDeletionGracePeriodSeconds()
+	if pod.Spec.TerminationGracePeriodSeconds != nil && *pod.Spec.TerminationGracePeriodSeconds > 0 {
+		deleteGracePeriod = *pod.Spec.TerminationGracePeriodSeconds
 	}
-	fmt.Printf("eviction gracePeriod %ds, pod grace period %d\n", deleteGracePeriod, *(pod.GetDeletionGracePeriodSeconds()))
+	fmt.Printf("eviction gracePeriod %ds\n", deleteGracePeriod)
 	deleteOptions := &apismetav1.DeleteOptions{
 		GracePeriodSeconds: &deleteGracePeriod,
 	}
