@@ -45,7 +45,7 @@ func IsDaemonSetPod(pod v1.Pod) bool {
 	return r
 }
 
-func IsEvicted(pod v1.Pod) bool {
+func IsEvictedPod(pod v1.Pod) bool {
 	return pod.Status.Reason == "Evicted"
 }
 
