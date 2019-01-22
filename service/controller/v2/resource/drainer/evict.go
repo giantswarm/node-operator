@@ -8,7 +8,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// evict pod from node
 func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	var deleteGracePeriod int64 = 60
 	if pod.DeletionGracePeriodSeconds != nil && *pod.DeletionGracePeriodSeconds > 0 {
