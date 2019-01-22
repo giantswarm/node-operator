@@ -1,8 +1,12 @@
 package key
 
 import (
+	"strings"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func ClusterAPIEndpoint(customObject v1alpha1.NodeConfig) string {
@@ -19,6 +23,30 @@ func ClusterID(customObject v1alpha1.NodeConfig) string {
 
 func ClusterIDFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
 	return drainerConfig.Spec.Guest.Cluster.ID
+}
+
+func IsCriticalPod(podName string) bool {
+	r := false
+	r = r || strings.HasPrefix(podName, "k8s-api-server")
+	r = r || strings.HasPrefix(podName, "k8s-controller-manager")
+	r = r || strings.HasPrefix(podName, "k8s-scheduler")
+
+	return r
+}
+
+func IsDaemonSetPod(pod v1.Pod) bool {
+	r := false
+	ownerRefrence := metav1.GetControllerOf(&pod)
+
+	if ownerRefrence != nil && ownerRefrence.Kind == "DaemonSet" {
+		r = true
+	}
+
+	return r
+}
+
+func IsEvictedPod(pod v1.Pod) bool {
+	return pod.Status.Reason == "Evicted"
 }
 
 func NodeName(customObject v1alpha1.NodeConfig) string {
