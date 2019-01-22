@@ -1,7 +1,6 @@
 package drainer
 
 import (
-	"fmt"
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	"k8s.io/api/policy/v1beta1"
@@ -14,7 +13,6 @@ func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 	if pod.Spec.TerminationGracePeriodSeconds != nil && *pod.Spec.TerminationGracePeriodSeconds > 0 {
 		deleteGracePeriod = *pod.Spec.TerminationGracePeriodSeconds
 	}
-	fmt.Printf("eviction gracePeriod %ds\n", deleteGracePeriod)
 	deleteOptions := &apismetav1.DeleteOptions{
 		GracePeriodSeconds: &deleteGracePeriod,
 	}
