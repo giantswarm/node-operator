@@ -34,7 +34,6 @@ type Service struct {
 
 	bootOnce          sync.Once
 	drainerController *controller.Drainer
-	nodeController    *controller.Node
 }
 
 func New(config Config) (*Service, error) {
@@ -100,23 +99,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var nodeController *controller.Node
-	{
-		c := controller.NodeConfig{
-			G8sClient:    g8sClient,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
-			Logger:       config.Logger,
-
-			ProjectName: config.Name,
-		}
-
-		nodeController, err = controller.NewNode(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var versionService *version.Service
 	{
 		c := version.Config{
@@ -138,7 +120,6 @@ func New(config Config) (*Service, error) {
 
 		bootOnce:          sync.Once{},
 		drainerController: drainerController,
-		nodeController:    nodeController,
 	}
 
 	return newService, nil
@@ -147,6 +128,5 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.drainerController.Boot(context.Background())
-		go s.nodeController.Boot(context.Background())
 	})
 }
