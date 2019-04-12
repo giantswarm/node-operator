@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/k8sportforward"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -152,6 +153,15 @@ func (c *Client) DeleteRelease(ctx context.Context, releaseName string, options 
 // As a first step, it checks if Tiller is already ready, in which case it
 // returns early.
 func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
+	return c.EnsureTillerInstalledWithValues(ctx, []string{})
+}
+
+// EnsureTillerInstalledWithValues installs Tiller by creating its deployment
+// and waiting for it to start. A service account and cluster role binding are
+// also created. As a first step, it checks if Tiller is already ready, in
+// which case it returns early. Values can be provided to pass through to Tiller
+// and overwrite its deployment.
+func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []string) error {
 	// Check if Tiller is already present and return early if so.
 	{
 		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding if tiller is installed in namespace %#q", c.tillerNamespace))
@@ -261,7 +271,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 			return nil
 		}
-		b := backoff.NewExponential(2*time.Minute, 5*time.Second)
+		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, context.Background())
 
 		err := backoff.RetryNotify(o, b, n)
@@ -270,7 +280,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		}
 	}
 
-	if pod != nil {
+	if !installTiller && pod != nil {
 		err = validateTillerVersion(pod, c.tillerImage)
 		if IsTillerOutdated(err) {
 			upgradeTiller = true
@@ -285,6 +295,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		MaxHistory:                   defaultMaxHistory,
 		Namespace:                    c.tillerNamespace,
 		ServiceAccount:               tillerPodName,
+		Values:                       values,
 	}
 
 	// Install the tiller deployment in the tenant cluster.
@@ -298,7 +309,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
-	} else {
+	} else if installTiller && upgradeTiller {
 		return microerror.Maskf(executionFailedError, "invalid state cannot both install and upgrade tiller")
 	}
 
@@ -312,7 +323,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) {
+			if !installTiller && IsTillerNotFound(err) {
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
 				return microerror.Mask(err)
@@ -332,7 +343,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 			return nil
 		}
-		b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
+		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, ctx)
 
 		err := backoff.RetryNotify(o, b, n)
@@ -393,6 +404,7 @@ func (c *Client) GetReleaseContent(ctx context.Context, releaseName string) (*Re
 // The releaseName is the name of the Helm Release that is set when the Helm
 // Chart is installed.
 func (c *Client) GetReleaseHistory(ctx context.Context, releaseName string) (*ReleaseHistory, error) {
+	var err error
 	var resp *hapiservices.GetHistoryResponse
 	{
 		o := func() error {
@@ -416,7 +428,7 @@ func (c *Client) GetReleaseHistory(ctx context.Context, releaseName string) (*Re
 		b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
 		n := backoff.NewNotifier(c.logger, ctx)
 
-		err := backoff.RetryNotify(o, b, n)
+		err = backoff.RetryNotify(o, b, n)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -430,14 +442,26 @@ func (c *Client) GetReleaseHistory(ctx context.Context, releaseName string) (*Re
 	{
 		release := resp.Releases[0]
 
+		var appVersion string
 		var version string
 		if release.Chart != nil && release.Chart.Metadata != nil {
+			appVersion = release.Chart.Metadata.AppVersion
 			version = release.Chart.Metadata.Version
 		}
 
+		var lastDeployed time.Time
+		if release.Info != nil {
+			lastDeployed, err = ptypes.Timestamp(release.Info.LastDeployed)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
 		history = &ReleaseHistory{
-			Name:    release.Name,
-			Version: version,
+			AppVersion:   appVersion,
+			LastDeployed: lastDeployed,
+			Name:         release.Name,
+			Version:      version,
 		}
 	}
 
