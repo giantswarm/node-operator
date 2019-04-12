@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/api/core/v1"
@@ -49,7 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// TODO emit metrics
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to timeout condition")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of tenant cluster node to timeout condition")
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
 
@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to timeout condition")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of tenant cluster node to timeout condition")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
@@ -80,15 +80,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning tenant cluster node")
 
 		n := key.NodeNameFromDrainerConfig(drainerConfig)
 		t := types.StrategicMergePatchType
 		p := []byte(UnschedulablePatch)
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
-		if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
+		if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster API is not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
@@ -98,8 +98,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// node we assume the draining was successful and set the drainer config
 			// status accordingly.
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to drained condition")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster node not found")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of tenant cluster node to drained condition")
 
 			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
@@ -108,7 +108,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of guest cluster node to drained condition")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "set drainer config status of tenant cluster node to drained condition")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
@@ -116,13 +116,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoned guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoned tenant cluster node")
 	}
 
 	var customPods []v1.Pod
 	var systemPods []v1.Pod
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the guest cluster node")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "looking for all pods running on the tenant cluster node")
 
 		fieldSelector := fields.SelectorFromSet(fields.Set{
 			"spec.nodeName": key.NodeNameFromDrainerConfig(drainerConfig),
@@ -196,7 +196,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// When all pods are evicted from the tenant node, set the CR status to drained.
 	if len(systemPods) == 0 && len(customPods) == 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in tenant cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
@@ -205,7 +205,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of node in tenant cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 	}
 
 	return nil

@@ -3,7 +3,7 @@ package drainer
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -35,20 +35,20 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting guest cluster node from Kubernetes API")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting tenant cluster node from Kubernetes API")
 
 		n := key.NodeNameFromDrainerConfig(drainerConfig)
 		o := &metav1.DeleteOptions{}
 		err := k8sClient.CoreV1().Nodes().Delete(n, o)
-		if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete guest cluster node from Kubernetes API")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
+		if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete tenant cluster node from Kubernetes API")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster API is not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
 		} else if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete guest cluster node from Kubernetes API")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete tenant cluster node from Kubernetes API")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster node not found")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
@@ -56,7 +56,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted guest cluster node from Kubernetes API")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted tenant cluster node from Kubernetes API")
 	}
 
 	return nil
