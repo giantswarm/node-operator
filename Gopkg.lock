@@ -142,9 +142,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:21b55eca1f822f4a2b5eb42c789b25565ee6affdade65ae6015144ee2a9398ec"
+  digest = "1:08119f5e0765ddd55378346afcc64c074200e3c267aa460f8f4ae81c5bae877c"
   name = "github.com/giantswarm/errors"
-  packages = ["guest"]
+  packages = [
+    "guest",
+    "tenant",
+  ]
   pruneopts = "UT"
   revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
@@ -1069,6 +1072,7 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/errors/guest",
+    "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
     "github.com/giantswarm/microendpoint/service/version",
@@ -1081,7 +1085,6 @@
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
-    "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
