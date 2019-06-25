@@ -204,13 +204,13 @@ func IsTillerNotFound(err error) bool {
 	return microerror.Cause(err) == tillerNotFoundError
 }
 
-var tillerOutdatedError = &microerror.Error{
-	Kind: "tillerOutdatedError",
+var tillerInvalidVersionError = &microerror.Error{
+	Kind: "tillerInvalidVersionError",
 }
 
-// IsTillerOutdated asserts tillerOutdatedError.
-func IsTillerOutdated(err error) bool {
-	return microerror.Cause(err) == tillerOutdatedError
+// IsTillerInvalidVersion asserts tillerInvalidVersionError.
+func IsTillerInvalidVersion(err error) bool {
+	return microerror.Cause(err) == tillerInvalidVersionError
 }
 
 var tooManyResultsError = &microerror.Error{
@@ -220,4 +220,30 @@ var tooManyResultsError = &microerror.Error{
 // IsTooManyResults asserts tooManyResultsError.
 func IsTooManyResults(err error) bool {
 	return microerror.Cause(err) == tooManyResultsError
+}
+
+var (
+	yamlConversionFailedErrorText = "error converting YAML to JSON:"
+)
+
+var yamlConversionFailedError = &microerror.Error{
+	Kind: "yamlConversionFailedError",
+}
+
+// IsYamlConversionFailed asserts yamlConversionFailedError.
+func IsYamlConversionFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	c := microerror.Cause(err)
+
+	if c == yamlConversionFailedError {
+		return true
+	}
+	if strings.Contains(c.Error(), yamlConversionFailedErrorText) {
+		return true
+	}
+
+	return false
 }
