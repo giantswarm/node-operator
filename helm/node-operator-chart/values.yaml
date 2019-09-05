@@ -1,4 +1,3 @@
-name: node-operator
 namespace: giantswarm
 
 userID: 1000
