@@ -15,18 +15,18 @@ pod:
     id: 1000
   group:
     id: 1000
-  resource:
-    configMap:
-      name: "node-operator-configmap"
-    default:
-      name: "node-operator"
-      namespace: "giantswarm"
-    networkPolicy:
-      name: "node-operator-network-policy"
-    psp:
-      name: "node-operator-psp"
-    pullSecret:
-      name: "node-operator-pull-secret"
-    service:
-      port: "8000"
-      protocol: "TCP"
+resource:
+  configMap:
+    name: "node-operator-configmap"
+  default:
+    name: "node-operator"
+    namespace: "giantswarm"
+  networkPolicy:
+    name: "node-operator-network-policy"
+  psp:
+    name: "node-operator-psp"
+  pullSecret:
+    name: "node-operator-pull-secret"
+  service:
+    port: "8000"
+    protocol: "TCP"
