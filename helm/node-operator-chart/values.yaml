@@ -1,3 +1,32 @@
 namespace: giantswarm
+
 userID: 1000
 groupID: 1000
+
+port: 8000
+protocol: TCP
+
+image:
+  registry: "quay.io"
+  repository: "giantswarm/node-operator"
+  tag: "[[ .SHA ]]"
+pod:
+  user:
+    id: 1000
+  group:
+    id: 1000
+resource:
+  configMap:
+    name: "node-operator-configmap"
+  default:
+    name: "node-operator"
+    namespace: "giantswarm"
+  networkPolicy:
+    name: "node-operator-network-policy"
+  psp:
+    name: "node-operator-psp"
+  pullSecret:
+    name: "node-operator-pull-secret"
+  service:
+    port: "8000"
+    protocol: "TCP"
