@@ -7,35 +7,32 @@ import (
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/node-operator/flag"
 	"github.com/spf13/viper"
 
+	"github.com/giantswarm/node-operator/flag"
+	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/server"
 	"github.com/giantswarm/node-operator/service"
 )
 
 var (
-	description = "Project node-operator drains Kubernetes nodes on behalf of watched CRDs."
-	f           = flag.New()
-	gitCommit   = "n/a"
-	name        = "node-operator"
-	source      = "https://github.com/giantswarm/node-operator"
+	f = flag.New()
 )
 
 func main() {
-	err := mainWithError()
+	err := mainE()
 	if err != nil {
 		panic(fmt.Sprintf("%#v\n", microerror.Mask(err)))
 	}
 }
 
-func mainWithError() error {
+func mainE() error {
 	var err error
 
 	// Create a new logger which is used by all packages.
-	var newLogger micrologger.Logger
+	var logger micrologger.Logger
 	{
-		newLogger, err = micrologger.New(micrologger.Config{})
+		logger, err = micrologger.New(micrologger.Config{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -47,16 +44,16 @@ func mainWithError() error {
 		// Create a new custom service which implements business logic.
 		var newService *service.Service
 		{
-			c := service.Config{}
+			c := service.Config{
+				Flag:   f,
+				Logger: logger,
+				Viper:  v,
 
-			c.Flag = f
-			c.Logger = newLogger
-			c.Viper = v
-
-			c.Description = description
-			c.GitCommit = gitCommit
-			c.Name = name
-			c.Source = source
+				Description: project.Description(),
+				GitCommit:   project.GitSHA(),
+				Name:        project.Name(),
+				Source:      project.Source(),
+			}
 
 			newService, err = service.New(c)
 			if err != nil {
@@ -69,7 +66,7 @@ func mainWithError() error {
 		var newServer microserver.Server
 		{
 			c := server.Config{
-				Logger:  newLogger,
+				Logger:  logger,
 				Service: newService,
 				Viper:   v,
 			}
@@ -87,13 +84,13 @@ func mainWithError() error {
 	var newCommand command.Command
 	{
 		c := command.Config{
-			Logger:        newLogger,
+			Logger:        logger,
 			ServerFactory: newServerFactory,
 
-			Description:    description,
-			GitCommit:      gitCommit,
-			Name:           name,
-			Source:         source,
+			Description:    project.Description(),
+			GitCommit:      project.GitSHA(),
+			Name:           project.Name(),
+			Source:         project.Source(),
 			VersionBundles: service.NewVersionBundles(),
 		}
 
