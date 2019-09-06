@@ -1,12 +1,12 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: node-operator
-  namespace: {{ .Values.namespace }}
+  name: {{ .Values.resource.default.name }}
+  namespace: {{ .Values.resource.default.namespace }}
   labels:
-    app: node-operator
+    app: {{ .Values.resource.default.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.resource.deployment.replicas }}
   revisionHistoryLimit: 3
   strategy:
     type: Recreate
@@ -15,19 +15,19 @@ spec:
       annotations:
         releasetime: {{ $.Release.Time }}
       labels:
-        app: node-operator
+        app: {{ .Values.resource.default.name }}
     spec:
       volumes:
-      - name: node-operator-configmap
+      - name: {{ .Values.resource.configMap.name }}
         configMap:
-          name: node-operator-configmap
+          name: {{ .Values.resource.configMap.name }}
           items:
           - key: config.yml
             path: config.yml
-      serviceAccountName: node-operator
+      serviceAccountName: {{ .Values.resource.default.name }}
       securityContext:
-        runAsUser: {{ .Values.userID }}
-        runAsGroup: {{ .Values.groupID }}
+        runAsUser: {{ .Values.pod.user.id }}
+        runAsGroup: {{ .Values.pod.group.id }}
       containers:
       - name: node-operator
         image: quay.io/giantswarm/node-operator:[[ .SHA ]]
@@ -36,7 +36,7 @@ spec:
         - --config.dirs=/var/run/node-operator/configmap/
         - --config.files=config
         volumeMounts:
-        - name: node-operator-configmap
+        - name: {{ .Values.resource.configMap.name }}
           mountPath: /var/run/node-operator/configmap/
         livenessProbe:
           httpGet:
@@ -52,4 +52,4 @@ spec:
             cpu: 250m
             memory: 250Mi
       imagePullSecrets:
-      - name: node-operator-pull-secret
+      - name: {{ .Values.resource.pullSecret.name }}
