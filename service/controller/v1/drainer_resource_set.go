@@ -10,8 +10,9 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/micrologger/loggermeta"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
-	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
@@ -60,7 +61,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var drainerResource controller.Resource
+	var drainerResource resource.Interface
 	{
 		c := drainer.Config{
 			G8sClient:     config.G8sClient,
@@ -74,7 +75,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		drainerResource,
 	}
 

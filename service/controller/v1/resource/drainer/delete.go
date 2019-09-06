@@ -3,7 +3,7 @@ package drainer
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -40,7 +40,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		n := key.NodeNameFromDrainerConfig(drainerConfig)
 		o := &metav1.DeleteOptions{}
 		err := k8sClient.CoreV1().Nodes().Delete(n, o)
-		if guest.IsAPINotAvailable(err) {
+		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete guest cluster node from Kubernetes API")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")

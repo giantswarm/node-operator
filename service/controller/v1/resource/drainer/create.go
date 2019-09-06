@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/api/core/v1"
@@ -87,7 +87,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		p := []byte(UnschedulablePatch)
 
 		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
-		if guest.IsAPINotAvailable(err) {
+		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
