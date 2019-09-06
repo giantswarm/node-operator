@@ -19,14 +19,15 @@ import (
 )
 
 type Config struct {
+	Flag   *flag.Flag
 	Logger micrologger.Logger
+	Viper  *viper.Viper
 
 	Description string
-	Flag        *flag.Flag
 	GitCommit   string
 	Name        string
 	Source      string
-	Viper       *viper.Viper
+	Version     string
 }
 
 type Service struct {
@@ -106,6 +107,7 @@ func New(config Config) (*Service, error) {
 			GitCommit:      config.GitCommit,
 			Name:           config.Name,
 			Source:         config.Source,
+			Version:        config.Version,
 			VersionBundles: NewVersionBundles(),
 		}
 

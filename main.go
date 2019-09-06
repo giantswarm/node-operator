@@ -53,6 +53,7 @@ func mainE() error {
 				GitCommit:   project.GitSHA(),
 				Name:        project.Name(),
 				Source:      project.Source(),
+				Version:     project.Version(),
 			}
 
 			newService, err = service.New(c)
@@ -91,6 +92,7 @@ func mainE() error {
 			GitCommit:      project.GitSHA(),
 			Name:           project.Name(),
 			Source:         project.Source(),
+			Version:        project.Version(),
 			VersionBundles: service.NewVersionBundles(),
 		}
 
