@@ -167,10 +167,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sending eviction to all pods running custom workloads")
 
 		for _, p := range customPods {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
+
 			err := evictPod(k8sClient, p)
-			if err != nil {
+			if IsCannotEvictPod(err) {
+				r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot evict pod %#q due to disruption budget", p.GetName()))
+				continue
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running custom workloads")
@@ -183,10 +190,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sending eviction to all pods running system workloads")
 
 		for _, p := range systemPods {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
+
 			err := evictPod(k8sClient, p)
-			if err != nil {
+			if IsCannotEvictPod(err) {
+				r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("cannot evict pod %#q due to disruption budget", p.GetName()))
+				continue
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running system workloads")
