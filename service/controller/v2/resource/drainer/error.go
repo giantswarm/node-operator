@@ -6,15 +6,6 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var invalidConfigError = &microerror.Error{
-	Kind: "invalidConfigError",
-}
-
-// IsInvalidConfig asserts invalidConfigError.
-func IsInvalidConfig(err error) bool {
-	return microerror.Cause(err) == invalidConfigError
-}
-
 var cannotEvictPodError = &microerror.Error{
 	Kind: "cannotEvictPodError",
 }
@@ -32,4 +23,13 @@ func IsCannotEvictPod(err error) bool {
 	}
 
 	return c == cannotEvictPodError
+}
+
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
+}
+
+// IsInvalidConfig asserts invalidConfigError.
+func IsInvalidConfig(err error) bool {
+	return microerror.Cause(err) == invalidConfigError
 }
