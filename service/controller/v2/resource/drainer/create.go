@@ -167,7 +167,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sending eviction to all pods running custom workloads")
 
 		for _, p := range customPods {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", p.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 
 			err := evictPod(k8sClient, p)
 			if IsCannotEvictPod(err) {
@@ -177,7 +177,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", p.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running custom workloads")
@@ -190,7 +190,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sending eviction to all pods running system workloads")
 
 		for _, p := range systemPods {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", p.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sending eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 
 			err := evictPod(k8sClient, p)
 			if IsCannotEvictPod(err) {
@@ -200,7 +200,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", p.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("sent eviction to pod %#q", fmt.Sprintf("%s/%s", p.GetNamespace(), p.GetName())))
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "sent eviction to all pods running system workloads")
