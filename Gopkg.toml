@@ -58,6 +58,10 @@ required = [
   name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/to"
+
+[[constraint]]
   name = "k8s.io/api"
   version = "kubernetes-1.15.4"
 
