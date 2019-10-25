@@ -138,7 +138,7 @@
     "reference",
   ]
   pruneopts = "UT"
-  revision = "ae2e973db9365d6f8401ffb6bfc603f3cd76b111"
+  revision = "dee21c0394b5e1e735412461dbd8d3a769e01799"
 
 [[projects]]
   digest = "1:53e99d883df3e940f5f0223795f300eb32b8c044f226132bfc0e74930f24ea4b"
@@ -260,11 +260,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f46234309e6bb3d18b920f66ae443c5c481c02f09806d684cf2e2db15de5b110"
+  digest = "1:a9d1783b21c169e9095c90cd019393a9e9685afe345367f7dd564626aaa73094"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "710165927dea78e9338ed7d0087e2d224fd6f43c"
+  revision = "46206f66eaf4a9a4aa526457ae5d8e0124ec3d90"
 
 [[projects]]
   branch = "master"
@@ -297,7 +297,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5a83c09d3255d3a9311f988a46068e99f537de547899fa3956ec4c51b439d0b2"
+  digest = "1:aa1c4f2b82faba1e7fb3d532d9c9edc7e4d46ad54a5231c10d0e03461feb624d"
   name = "github.com/giantswarm/microkit"
   packages = [
     "command",
@@ -316,7 +316,7 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "4eef9bd9640621debcdfa90dee993cb6898d18cf"
+  revision = "429e22e73d3e1ccfbc9311baa3ea9526423debdf"
 
 [[projects]]
   branch = "master"
@@ -331,7 +331,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:de223f1ed7c1c6661d346c849b28c07318e82cb7f2a749521cd9fa18c252a068"
+  digest = "1:63f3733db2f2af3343e8935dcd9762dd7208c03fe5113c12304cb32de9f1db29"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -352,7 +352,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "cef121f4267e7e47013b44f0e0386fbb46f5b7a1"
+  revision = "3ac58af660114a9eb5c38f62ea568a6fbb3cc060"
 
 [[projects]]
   branch = "master"
@@ -364,19 +364,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:76f67d43a57b4391ec6e608e28cf2ddb2cd3a5ad065c96e22933d876912bf4cc"
+  digest = "1:5613edec666c3b6d357f27b9072806d9f783e405cf167f04d6a9ce48dd4590a9"
   name = "github.com/giantswarm/to"
   packages = ["."]
   pruneopts = "UT"
-  revision = "38e6500015bed1853163a441801d399a2f1a638d"
+  revision = "f2078541ec95746f9e8631c944a16592d185b2d7"
 
 [[projects]]
   branch = "master"
-  digest = "1:ee9e0350c435ae57713c05fe3432e1710dc5dce655c6b95d4e56807f0d0442fb"
+  digest = "1:8c692f26876d709cd28e18f6b0c935b15539097d6dfd5e71af87f12d1f420874"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cee7b08a150410e0321a561e3947ab13aa424d0c"
+  revision = "da16c09beea209bff3aff94585f6b8d81eee95e6"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
@@ -844,14 +844,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ea0e81b259e0c0563617017b1ba76d4af3ec97817defff75517eb7f34664b917"
+  digest = "1:a73d6a8f0b2e6a58581a560365caf6a81ce562875f3d99079b3b35cc49fcdca3"
   name = "github.com/rubenv/sql-migrate"
   packages = [
     ".",
     "sqlparse",
   ]
   pruneopts = "UT"
-  revision = "8926f37f0bc1a432e673c60cedb705f783306da5"
+  revision = "5cdff0d8cc42ce72f3d9f67532c4e31f732df010"
 
 [[projects]]
   digest = "1:b36a0ede02c4c2aef7df7f91cbbb7bb88a98b5d253509d4f997dda526e50c88c"
@@ -973,14 +973,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a93546dc9387cd0e520a5dd40e0bab495a4edefc653c0d4992e10366c8f7e151"
+  digest = "1:de0084adc1c0b8cf6fd192d7785b098b155ba355cbeec9ee361aea55b887ab9d"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "3e7259c5e7c2076bb2728047a3df75adb1bad8e5"
+  revision = "6c3a3bfe00aeca2b8685f04a482824367e7d2135"
 
 [[projects]]
   digest = "1:dfcb3d446a3c6a6c71b74cf7baf366cd630a8cb43c3fcb741f34e49727da168d"
@@ -1016,11 +1016,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cdd088b35bbf78713a6861a44a1bbe97e581861b6b8835c7f2211bbeca3671f6"
+  digest = "1:a2f668c709f9078828e99cb1768cb02e876cb81030545046a32b54b2ac2a9ea8"
   name = "golang.org/x/time"
   packages = ["rate"]
   pruneopts = "UT"
-  revision = "c4c64cad1fd0a1a8dab2523e04e61d35308e131e"
+  revision = "555d28b269f0569763d25dbe1a237ae74c6bcc82"
 
 [[projects]]
   digest = "1:e0a1881f9e0564bebdeac98c75e59f07acdde6ed3a5396e0e613eaad31194866"
@@ -1114,7 +1114,7 @@
   version = "v1.12.0"
 
 [[projects]]
-  digest = "1:9593bab40e981b1f90b7e07faeab0d09b75fe338880d08880f986a9d3283c53f"
+  digest = "1:45df33697961c5703020e4f00720743622bc4d383138958f0b57d9db0b4921fd"
   name = "gopkg.in/square/go-jose.v2"
   packages = [
     ".",
@@ -1123,8 +1123,8 @@
     "jwt",
   ]
   pruneopts = "UT"
-  revision = "730df5f748271903322feb182be83b43ebbbe27d"
-  version = "v2.3.1"
+  revision = "8fd82ff1d52a5162ff23c0a48e2c64a1fa4a3f8f"
+  version = "v2.4.0"
 
 [[projects]]
   digest = "1:59f10c1537d2199d9115d946927fe31165959a95190849c82ff11e05803528b0"
@@ -1480,7 +1480,7 @@
   version = "kubernetes-1.15.4"
 
 [[projects]]
-  digest = "1:a1f9a096e7812d1b9b65c9693fc5e2403dbd32de0b0d5a5b1da7af4d54f87c2d"
+  digest = "1:4ccf1adef9c0287fc00db64c5128d754428d9024a5d1ddbbb3590ef7dc659925"
   name = "k8s.io/helm"
   packages = [
     "cmd/helm/installer",
@@ -1513,8 +1513,8 @@
     "pkg/version",
   ]
   pruneopts = "UT"
-  revision = "c2440264ca6c078a06e088a838b0476d2fc14750"
-  version = "v2.15.0"
+  revision = "cf1de4f8ba70eded310918a8af3a96bfe8e7683b"
+  version = "v2.15.1"
 
 [[projects]]
   digest = "1:93e82f25d75aba18436ad1ac042cb49493f096011f2541075721ed6f9e05c044"

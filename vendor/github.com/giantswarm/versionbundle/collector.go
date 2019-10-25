@@ -20,8 +20,6 @@ type CollectorConfig struct {
 	FilterFunc func(Bundle) bool
 	Logger     micrologger.Logger
 	RestClient *resty.Client
-
-	Endpoints []*url.URL
 }
 
 type Collector struct {
@@ -31,8 +29,6 @@ type Collector struct {
 
 	bundles []Bundle
 	mutex   sync.Mutex
-
-	endpoints []*url.URL
 }
 
 func NewCollector(config CollectorConfig) (*Collector, error) {
@@ -43,10 +39,6 @@ func NewCollector(config CollectorConfig) (*Collector, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RestClient must not be empty", config)
 	}
 
-	if len(config.Endpoints) == 0 {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Endpoints must not be empty", config)
-	}
-
 	c := &Collector{
 		filterFunc: config.FilterFunc,
 		logger:     config.Logger,
@@ -54,8 +46,6 @@ func NewCollector(config CollectorConfig) (*Collector, error) {
 
 		bundles: nil,
 		mutex:   sync.Mutex{},
-
-		endpoints: config.Endpoints,
 	}
 
 	return c, nil
@@ -72,14 +62,14 @@ type CollectorEndpointResponse struct {
 	VersionBundles []Bundle `json:"version_bundles"`
 }
 
-func (c *Collector) Collect(ctx context.Context) error {
+func (c *Collector) Collect(ctx context.Context, endpoints []*url.URL) error {
 	c.logger.Log("level", "debug", "message", "collecting version bundles from endpoints")
 
 	responses := map[string][]byte{}
 	{
 		var g errgroup.Group
 
-		for _, endpoint := range c.endpoints {
+		for _, endpoint := range endpoints {
 			e := endpoint
 
 			g.Go(func() error {
