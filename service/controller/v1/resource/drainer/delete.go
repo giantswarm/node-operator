@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/tenant"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,7 +24,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	{
 		i := key.ClusterIDFromDrainerConfig(drainerConfig)
 		e := key.ClusterEndpointFromDrainerConfig(drainerConfig)
-		k8sClient, err = r.tenantCluster.NewK8sClient(ctx, i, e)
+		restConfig, err := r.tenantCluster.NewRestConfig(ctx, i, e)
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "fetching certificates timed out")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -32,6 +33,17 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
+
+		clientsConfig := k8sclient.ClientsConfig{
+			Logger:     r.logger,
+			RestConfig: restConfig,
+		}
+		k8sClients, err := k8sclient.NewClients(clientsConfig)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		k8sClient = k8sClients.K8sClient()
 	}
 
 	{

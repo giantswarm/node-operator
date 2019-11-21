@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.resource.default.name }}
@@ -10,6 +10,9 @@ spec:
   revisionHistoryLimit: 3
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.resource.default.name }}
   template:
     metadata:
       annotations:
