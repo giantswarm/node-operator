@@ -97,7 +97,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 				v1ResourceSet,
 				v2ResourceSet,
 			},
-			RESTClient: config.K8sClient.G8sClient().CoreV1alpha1().RESTClient(),
+			RESTClient: config.K8sClient.RESTClient(),
 
 			Name: project.Name(),
 		}
