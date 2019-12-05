@@ -47,8 +47,8 @@ func mainE() error {
 			c := service.Config{
 				Logger: logger,
 
-				Flag:   f,
-				Viper:  v,
+				Flag:  f,
+				Viper: v,
 			}
 
 			newService, err = service.New(c)
