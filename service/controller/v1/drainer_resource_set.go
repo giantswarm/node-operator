@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/micrologger/loggermeta"
@@ -14,18 +14,14 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/node-operator/service/controller/v1/key"
 	"github.com/giantswarm/node-operator/service/controller/v1/resource/drainer"
 )
 
 type DrainerResourceSetConfig struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	ProjectName string
 }
 
 func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.ResourceSet, error) {
@@ -34,7 +30,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -64,7 +60,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) (*controller.Resourc
 	var drainerResource resource.Interface
 	{
 		c := drainer.Config{
-			G8sClient:     config.G8sClient,
+			G8sClient:     config.K8sClient.G8sClient(),
 			Logger:        config.Logger,
 			TenantCluster: tenantCluster,
 		}

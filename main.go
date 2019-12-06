@@ -45,15 +45,10 @@ func mainE() error {
 		var newService *service.Service
 		{
 			c := service.Config{
-				Flag:   f,
 				Logger: logger,
-				Viper:  v,
 
-				Description: project.Description(),
-				GitCommit:   project.GitSHA(),
-				Name:        project.Name(),
-				Source:      project.Source(),
-				Version:     project.Version(),
+				Flag:  f,
+				Viper: v,
 			}
 
 			newService, err = service.New(c)
