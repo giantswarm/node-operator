@@ -1,5 +1,4 @@
 image:
-  registry: "quay.io"
   repository: "giantswarm/node-operator"
   tag: "[[ .SHA ]]"
 pod:
