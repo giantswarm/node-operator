@@ -1,6 +1,10 @@
 image:
   repository: "giantswarm/node-operator"
   tag: "[[ .SHA ]]"
+Installation:
+  V1:
+    Registry:
+      Domain: quay.io
 pod:
   user:
     id: 1000
