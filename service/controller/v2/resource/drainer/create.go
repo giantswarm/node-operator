@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/node-operator/service/controller/v2/key"
 )
@@ -47,8 +48,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if drainingTimedOut(drainerConfig, time.Now(), 10*time.Minute) {
-		// TODO emit metrics
-
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of tenant cluster node to timeout condition")
 
@@ -65,11 +64,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	var k8sClient kubernetes.Interface
+	var restConfig *rest.Config
 	{
 		i := key.ClusterIDFromDrainerConfig(drainerConfig)
 		e := key.ClusterEndpointFromDrainerConfig(drainerConfig)
-		restConfig, err := r.tenantCluster.NewRestConfig(ctx, i, e)
+		restConfig, err = r.tenantCluster.NewRestConfig(ctx, i, e)
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "fetching certificates timed out")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -78,13 +77,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
+	}
 
-		clientsConfig := k8sclient.ClientsConfig{
+	var k8sClient kubernetes.Interface
+	{
+		c := k8sclient.ClientsConfig{
 			Logger:     r.logger,
 			RestConfig: restConfig,
 		}
-		k8sClients, err := k8sclient.NewClients(clientsConfig)
-		if err != nil {
+
+		k8sClients, err := k8sclient.NewClients(c)
+		if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster API is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
