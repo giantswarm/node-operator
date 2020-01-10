@@ -299,7 +299,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:1d1cbf539d9ac35eb3148129f96be5537f1a1330cadcc7e3a83b4e72a59672a3"
+  digest = "1:0aeda02073125667ac6c9df50c7921cb22c08a4accdc54589c697a7e76be65c2"
   name = "github.com/google/go-cmp"
   packages = [
     "cmp",
@@ -309,8 +309,8 @@
     "cmp/internal/value",
   ]
   pruneopts = "UT"
-  revision = "2d0692c2e9617365a95b295612ac0d4415ba4627"
-  version = "v0.3.1"
+  revision = "5a6f75716e1203a923a78c9efb94089d857df0f6"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:a6181aca1fd5e27103f9a920876f29ac72854df7345a39f3b01e61c8c94cc8af"
@@ -591,7 +591,7 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "53104e6ec876ad4e22ad27cce588b01392043c1b"
+  revision = "61a87790db17894570dfb32dbaa0a4af9ce60cb4"
 
 [[projects]]
   branch = "master"
@@ -611,14 +611,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:55d36eb35766a3f105fa36cfb2faf053cc33c019108a6adee799c4e7d59d62b2"
+  digest = "1:911b45b658f5fab1a26259e2fd1085ab296f9d3e46117311d25f8dae51efe720"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = "UT"
-  revision = "858c2ad4c8b6c5d10852cb89079f6ca1c7309787"
+  revision = "bf48bf16ab8d622ce64ec6ce98d2c98f916b6303"
 
 [[projects]]
   branch = "master"
@@ -630,14 +630,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0cbf59a8e2cbbe6601b6f6c940d29aab7020f9f42c6b697fee4335a973bcce09"
+  digest = "1:c8faf148023f13e62a93d3ed6c01fc586b3c6b52a40c5c9b0f2220bae71f390a"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "a1369afcdac740082c63165b07ec83b531884be2"
+  revision = "548cf772de5052aa878ccb47cdeb7d262b75c8ec"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -985,7 +985,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "f07c713de88362aef7545072487d6118bd4a3d4a"
+  revision = "94aeca20bf0991bf33922a5938174b9147ab8ca7"
 
 [[projects]]
   digest = "1:8053263951e435c10bfb257f59063caafdb5f7de5ee35336383c84949bb84a25"
