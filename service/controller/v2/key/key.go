@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -19,6 +19,7 @@ func ClusterIDFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
 
 func IsCriticalPod(podName string) bool {
 	r := false
+	r = r || strings.HasPrefix(podName, "k8s-api-healthz")
 	r = r || strings.HasPrefix(podName, "k8s-api-server")
 	r = r || strings.HasPrefix(podName, "k8s-controller-manager")
 	r = r || strings.HasPrefix(podName, "k8s-scheduler")
