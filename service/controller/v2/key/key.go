@@ -19,6 +19,10 @@ func ClusterIDFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
 
 func IsCriticalPod(podName string) bool {
 	r := false
+	// k8s-api-healthz is a service on master nodes that exposes
+	// unauthenticated apiserver /healthz for load balancers. It is deployed as
+	// manifest similar to api-server, controller-manager and scheduler and
+	// therefore it always restarts after termination.
 	r = r || strings.HasPrefix(podName, "k8s-api-healthz")
 	r = r || strings.HasPrefix(podName, "k8s-api-server")
 	r = r || strings.HasPrefix(podName, "k8s-controller-manager")
