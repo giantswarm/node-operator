@@ -117,6 +117,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5164d17414266145c643e4997dacbc32e6e1ad552c3c70a78837f64d9a0140ea"
+  name = "github.com/giantswarm/exporterkit"
+  packages = ["collector"]
+  pruneopts = "UT"
+  revision = "9749deade60f7624620aa7158a4f38c87ea23795"
+
+[[projects]]
+  branch = "master"
   digest = "1:5ea4a83b027c56f8f5f5bae17671964275cbcd50115528ed9dc733f9330cac79"
   name = "github.com/giantswarm/k8sclient"
   packages = [
@@ -185,10 +193,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:44980ab16c9f93bcc8f5647d46346147ea30898e942b1fb9ec920b6b8d36c126"
+  digest = "1:e35bb8852e24edcf07a8ebf2f0a488ff21a8686ab105963a5d712c77e24bf005"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "controller",
+    "controller/collector",
     "controller/context/finalizerskeptcontext",
     "controller/context/reconciliationcanceledcontext",
     "controller/context/resourcecanceledcontext",
@@ -203,7 +212,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "a813aec7407ebf158fea264babb9b0303bcb5747"
+  revision = "aa7ed959916171a1bc18c4f5ecf4b680c7e4af9e"
 
 [[projects]]
   branch = "master"
@@ -988,14 +997,16 @@
   revision = "94aeca20bf0991bf33922a5938174b9147ab8ca7"
 
 [[projects]]
-  digest = "1:8053263951e435c10bfb257f59063caafdb5f7de5ee35336383c84949bb84a25"
+  digest = "1:1467ce430fe64e79b42e62d087dbcc58aaaa6d862f92f5d4daae68545af8507e"
   name = "sigs.k8s.io/controller-runtime"
   packages = [
+    "pkg/builder",
     "pkg/cache",
     "pkg/cache/internal",
     "pkg/client",
     "pkg/client/apiutil",
     "pkg/controller",
+    "pkg/conversion",
     "pkg/event",
     "pkg/handler",
     "pkg/healthz",
@@ -1015,6 +1026,7 @@
     "pkg/source/internal",
     "pkg/webhook",
     "pkg/webhook/admission",
+    "pkg/webhook/conversion",
     "pkg/webhook/internal/certwatcher",
     "pkg/webhook/internal/metrics",
   ]
