@@ -15,7 +15,7 @@ require (
 	github.com/giantswarm/tenantcluster v0.2.0
 	github.com/giantswarm/to v0.2.0
 	github.com/giantswarm/versionbundle v0.2.0
-	github.com/spf13/viper v1.6.2
+	github.com/spf13/viper v1.6.3
 	k8s.io/api v0.16.6
 	k8s.io/apimachinery v0.16.6
 	k8s.io/client-go v0.16.6
