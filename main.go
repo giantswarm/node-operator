@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
@@ -22,7 +20,7 @@ var (
 func main() {
 	err := mainE()
 	if err != nil {
-		panic(fmt.Sprintf("%#v\n", microerror.Mask(err)))
+		panic(microerror.JSON(err))
 	}
 }
 
@@ -53,7 +51,7 @@ func mainE() error {
 
 			newService, err = service.New(c)
 			if err != nil {
-				panic(fmt.Sprintf("%#v", err))
+				panic(microerror.JSON(err))
 			}
 			go newService.Boot()
 		}
@@ -69,7 +67,7 @@ func mainE() error {
 
 			newServer, err = server.New(c)
 			if err != nil {
-				panic(fmt.Sprintf("%#v", err))
+				panic(microerror.JSON(err))
 			}
 		}
 
@@ -106,7 +104,10 @@ func mainE() error {
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CrtFile, "", "Certificate file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
 
-	newCommand.CobraCommand().Execute()
+	err = newCommand.CobraCommand().Execute()
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	return nil
 }

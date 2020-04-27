@@ -246,9 +246,5 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func drainingTimedOut(drainerConfig v1alpha1.DrainerConfig, now time.Time, timeout time.Duration) bool {
-	if drainerConfig.GetCreationTimestamp().Add(timeout).After(now) {
-		return false
-	}
-
-	return true
+	return !drainerConfig.GetCreationTimestamp().Add(timeout).After(now)
 }
