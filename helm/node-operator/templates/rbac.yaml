@@ -85,7 +85,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.resource.default.name }}
-    namespace: {{ .Values.resource.default.namespace }}
+    namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ .Values.resource.default.name }}
@@ -112,7 +112,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.resource.default.name }}
-    namespace: {{ .Values.resource.default.namespace }}
+    namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ .Values.resource.psp.name }}

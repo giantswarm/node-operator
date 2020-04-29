@@ -1,0 +1,6 @@
+apiVersion: "v1"
+name: "node-operator"
+description: "Helm chart for node-operator."
+home: "https://github.com/giantswarm/node-operator"
+version: "[[ .Version ]]"
+appVersion: "[[ .AppVersion ]]"

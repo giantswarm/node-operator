@@ -1,10 +1,7 @@
 image:
-  repository: "giantswarm/node-operator"
-  tag: "[[ .SHA ]]"
-Installation:
-  V1:
-    Registry:
-      Domain: quay.io
+  registry: quay.io
+  name: "giantswarm/node-operator"
+  tag: "[[ .Version ]]"
 pod:
   user:
     id: 1000
@@ -15,7 +12,6 @@ resource:
     name: "node-operator-configmap"
   default:
     name: "node-operator"
-    namespace: "giantswarm"
   deployment:
     replicas: 1
   networkPolicy:

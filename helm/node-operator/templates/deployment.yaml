@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.resource.default.name }}
-  namespace: {{ .Values.resource.default.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.resource.default.name }}
 spec:
@@ -16,7 +16,7 @@ spec:
   template:
     metadata:
       annotations:
-        releasetime: {{ $.Release.Time }}
+        releaseRevision: {{ .Release.Revision | quote }}
       labels:
         app: {{ .Values.resource.default.name }}
     spec:
@@ -33,7 +33,7 @@ spec:
         runAsGroup: {{ .Values.pod.group.id }}
       containers:
       - name: node-operator
-        image: "{{ .Values.Installation.V1.Registry.Domain }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
         - daemon
         - --config.dirs=/var/run/node-operator/configmap/
