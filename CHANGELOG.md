@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [1.0.0] - 2020-04-29
+
 ### Changed
 
 - Push `node-operator` chart into `control-plane` catalog instead of quay.io.
 - Push `node-operator` app CRs into `<provider>-app-collection` repository.
+
+[Unreleased]: https://github.com/giantswarm/node-operator/compare/v1.0.0...HEAD
+
+[1.0.0]: https://github.com/giantswarm/node-operator/tag/v1.0.0
