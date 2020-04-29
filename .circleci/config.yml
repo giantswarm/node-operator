@@ -79,6 +79,33 @@ workflows:
           name: push-to-aws-app-collection
           app_name: "node-operator"
           app_collection_repo: "aws-app-collection"
+          unique: "true"
+          requires:
+            - push-to-app-catalog-master
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          name: push-to-azure-app-collection
+          app_name: "node-operator"
+          app_collection_repo: "azure-app-collection"
+          unique: "true"
+          requires:
+            - push-to-app-catalog-master
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-collection:
+          name: push-to-kvm-app-collection
+          app_name: "node-operator"
+          app_collection_repo: "kvm-app-collection"
+          unique: "true"
           requires:
             - push-to-app-catalog-master
           filters:
