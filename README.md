@@ -7,7 +7,6 @@ Project node-operator drains Kubernetes nodes on behalf of watched CRDs.
 ## Contact
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
 - Bugs: [issues](https://github.com/giantswarm/node-operator/issues)
 
 ## Contributing & Reporting Bugs
