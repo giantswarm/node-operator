@@ -11,7 +11,7 @@ Project node-operator drains Kubernetes nodes on behalf of watched CRDs.
 
 ## Contributing & Reporting Bugs
 
-See [.github/CONTRIBUTING.md](/giantswarm/node-operator/blob/master/.github/CONTRIBUTING.md) for details on submitting patches, the contribution workflow as well as reporting bugs.
+See [CONTRIBUTING](/giantswarm/node-operator/blob/master/.github/CONTRIBUTING.md) for details on submitting patches, the contribution workflow as well as reporting bugs.
 
 ## License
 
