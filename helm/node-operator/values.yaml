@@ -2,24 +2,25 @@ image:
   registry: quay.io
   name: "giantswarm/node-operator"
   tag: "[[ .Version ]]"
+
+project:
+  branch: "[[ .Branch ]]"
+  commit: "[[ .SHA ]]"
+
+Installation:
+  V1:
+    Registry:
+      Domain: quay.io
+
 pod:
   user:
     id: 1000
   group:
     id: 1000
+
 resource:
-  configMap:
-    name: "node-operator-configmap"
-  default:
-    name: "node-operator"
   deployment:
     replicas: 1
-  networkPolicy:
-    name: "node-operator-network-policy"
-  psp:
-    name: "node-operator-psp"
-  pullSecret:
-    name: "node-operator-pull-secret"
   service:
     port: "8000"
     protocol: "TCP"

@@ -1,8 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.resource.configMap.name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "resource.configMap.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
+  labels:
+    {{- include "labels.common" . | nindent 4 }}
 data:
   config.yml: |
     server:

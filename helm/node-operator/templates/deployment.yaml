@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.resource.default.name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "resource.default.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
-    app: {{ .Values.resource.default.name }}
+    {{- include "labels.common" . | nindent 4 }}
 spec:
   replicas: {{ .Values.resource.deployment.replicas }}
   revisionHistoryLimit: 3
@@ -12,22 +12,22 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ .Values.resource.default.name }}
+      {{- include "labels.selector" . | nindent 6 }}
   template:
     metadata:
       annotations:
         releaseRevision: {{ .Release.Revision | quote }}
       labels:
-        app: {{ .Values.resource.default.name }}
+        {{- include "labels.common" . | nindent 8 }}
     spec:
       volumes:
-      - name: {{ .Values.resource.configMap.name }}
+      - name: {{ include "resource.configMap.name" . }}
         configMap:
-          name: {{ .Values.resource.configMap.name }}
+          name: {{ include "resource.configMap.name" . }}
           items:
           - key: config.yml
             path: config.yml
-      serviceAccountName: {{ .Values.resource.default.name }}
+      serviceAccountName: {{ include "resource.default.name" . }}
       securityContext:
         runAsUser: {{ .Values.pod.user.id }}
         runAsGroup: {{ .Values.pod.group.id }}
@@ -39,7 +39,7 @@ spec:
         - --config.dirs=/var/run/node-operator/configmap/
         - --config.files=config
         volumeMounts:
-        - name: {{ .Values.resource.configMap.name }}
+        - name: {{ include "resource.configMap.name" . }}
           mountPath: /var/run/node-operator/configmap/
         livenessProbe:
           httpGet:
