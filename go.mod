@@ -13,7 +13,7 @@ require (
 	github.com/giantswarm/micrologger v0.3.3
 	github.com/giantswarm/operatorkit v0.2.1
 	github.com/giantswarm/tenantcluster v0.2.0
-	github.com/giantswarm/to v0.2.0
+	github.com/giantswarm/to v0.3.0
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/spf13/viper v1.7.1
 	k8s.io/api v0.16.6
