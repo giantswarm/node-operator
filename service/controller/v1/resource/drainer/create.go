@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,7 +54,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
 
-		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(&drainerConfig)
+		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -98,7 +98,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		t := types.StrategicMergePatchType
 		p := []byte(UnschedulablePatch)
 
-		_, err := k8sClient.CoreV1().Nodes().Patch(n, t, p)
+		_, err := k8sClient.CoreV1().Nodes().Patch(ctx, n, t, p, metav1.PatchOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -115,7 +115,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
-			_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(&drainerConfig)
+			_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -142,7 +142,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		listOptions := metav1.ListOptions{
 			FieldSelector: fieldSelector.String(),
 		}
-		podList, err := k8sClient.CoreV1().Pods(v1.NamespaceAll).List(listOptions)
+		podList, err := k8sClient.CoreV1().Pods(v1.NamespaceAll).List(ctx, listOptions)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -163,7 +163,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running custom workloads")
 
 		for _, p := range customPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(ctx, p.GetName(), metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -178,7 +178,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting all pods running system workloads")
 
 		for _, p := range systemPods {
-			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(p.GetName(), &metav1.DeleteOptions{})
+			err := k8sClient.CoreV1().Pods(p.GetNamespace()).Delete(ctx, p.GetName(), metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -194,7 +194,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
-		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(&drainerConfig)
+		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}

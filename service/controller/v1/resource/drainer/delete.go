@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -50,8 +50,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting guest cluster node from Kubernetes API")
 
 		n := key.NodeNameFromDrainerConfig(drainerConfig)
-		o := &metav1.DeleteOptions{}
-		err := k8sClient.CoreV1().Nodes().Delete(n, o)
+		err := k8sClient.CoreV1().Nodes().Delete(ctx, n, metav1.DeleteOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete guest cluster node from Kubernetes API")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster API is not available")
