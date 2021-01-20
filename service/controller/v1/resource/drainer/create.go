@@ -52,7 +52,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to timeout condition")
 
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
+		condition := drainerConfig.Status.NewTimeoutCondition()
+		condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+
+		fmt.Println(fmt.Sprintf("%#v", drainerConfig))
 
 		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
 		if err != nil {
