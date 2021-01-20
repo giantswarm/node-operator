@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add monitoring labels and add basic labels
 
+### Changed
+
+- Update dependencies for Kubernetes 1.18.
+
 ## [1.0.2]
 
 ### Changed
