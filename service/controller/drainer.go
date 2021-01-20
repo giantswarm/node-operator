@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/node-operator/pkg/project"
@@ -31,7 +32,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var err error
 
-	var v1ResourceSet *controller.ResourceSet
+	var v1ResourceSet []resource.Interface
 	{
 		c := v1.DrainerResourceSetConfig{
 			K8sClient: config.K8sClient,
@@ -44,7 +45,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 		}
 	}
 
-	var v2ResourceSet *controller.ResourceSet
+	var v2ResourceSet []resource.Interface
 	{
 		c := v2.DrainerResourceSetConfig{
 			K8sClient: config.K8sClient,
@@ -59,13 +60,20 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var operatorkitController *controller.Controller
 	{
+		resourceSets := [][]resource.Interface{
+			v1ResourceSet,
+			v2ResourceSet,
+		}
+
+		resources := []resource.Interface{}
+		for _, set := range resourceSets {
+			resources = append(resources, set...)
+		}
+
 		c := controller.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-			ResourceSets: []*controller.ResourceSet{
-				v1ResourceSet,
-				v2ResourceSet,
-			},
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			Resources:    resources,
 			ResyncPeriod: 2 * time.Minute,
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.DrainerConfig)
