@@ -52,8 +52,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to timeout condition")
 
+		// do this in a for loop for all conditions?
 		condition := drainerConfig.Status.NewTimeoutCondition()
-		condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		condition.LastHeartbeatTime = metav1.Now()
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
 
@@ -119,7 +121,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to drained condition")
 
 			condition := drainerConfig.Status.NewDrainedCondition()
-			condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+			// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+			condition.LastHeartbeatTime = metav1.Now()
 
 			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
 
