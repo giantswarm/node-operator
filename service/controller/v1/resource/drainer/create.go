@@ -55,6 +55,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// do this in a for loop for all conditions?
 		condition := drainerConfig.Status.NewTimeoutCondition()
 		// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
 		condition.LastHeartbeatTime = metav1.Now()
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
