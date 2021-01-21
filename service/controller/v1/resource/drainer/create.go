@@ -212,7 +212,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
+		// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
+		condition := drainerConfig.Status.NewTimeoutCondition()
+		// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
+		condition.LastHeartbeatTime = metav1.Now()
+
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+
+		fmt.Println(fmt.Sprintf("%#v", drainerConfig))
 
 		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
 		if err != nil {
