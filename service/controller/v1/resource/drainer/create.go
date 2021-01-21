@@ -53,12 +53,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to timeout condition")
 
 		// do this in a for loop for all conditions?
-		condition := drainerConfig.Status.NewTimeoutCondition()
-		// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
-		fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
-		condition.LastHeartbeatTime = metav1.Now()
+		// condition := drainerConfig.Status.NewTimeoutCondition()
+		// // condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		// fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
+		// condition.LastHeartbeatTime = metav1.Now()
 
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+		// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
 
 		fmt.Println(fmt.Sprintf("%#v", drainerConfig))
 
@@ -121,11 +122,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster node not found")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of guest cluster node to drained condition")
 
-			condition := drainerConfig.Status.NewDrainedCondition()
-			// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
-			condition.LastHeartbeatTime = metav1.Now()
+			// condition := drainerConfig.Status.NewDrainedCondition()
+			// // condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+			// condition.LastHeartbeatTime = metav1.Now()
 
-			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+			// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+
+			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
 			fmt.Println(fmt.Sprintf("%#v", drainerConfig))
 
@@ -212,13 +215,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of node in guest cluster '%s' to drained condition", key.ClusterIDFromDrainerConfig(drainerConfig)))
 
-		// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
-		condition := drainerConfig.Status.NewTimeoutCondition()
-		// condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
-		fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
-		condition.LastHeartbeatTime = metav1.Now()
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
+		// condition := drainerConfig.Status.NewTimeoutCondition()
+		// // condition.LastHeartbeatTime = metav1.NewTime(time.Time{})
+		// fmt.Println(fmt.Sprintf("Bare condition: %#v", condition))
+		// condition.LastHeartbeatTime = metav1.Now()
 
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
+		// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, condition)
 
 		fmt.Println(fmt.Sprintf("%#v", drainerConfig))
 
