@@ -32,27 +32,9 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var err error
 
-	// var v1ResourceSet []resource.Interface
-	// {
-	// 	c := DrainerResourceSetConfig{
-	// 		K8sClient: config.K8sClient,
-	// 		Logger:    config.Logger,
-	// 	}
-
-	// 	v1ResourceSet, err = v1.NewDrainerResourceSet(c)
-	// 	if err != nil {
-	// 		return nil, microerror.Mask(err)
-	// 	}
-	// }
-
 	var resourceSet []resource.Interface
 	{
-		c := DrainerResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		resourceSet, err = NewDrainerResourceSet(c)
+		resourceSet, err = NewDrainerResourceSet(DrainerResourceSetConfig(config))
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
