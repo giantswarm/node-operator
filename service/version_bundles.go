@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/giantswarm/node-operator/service/controller"
 	"github.com/giantswarm/versionbundle"
+
+	"github.com/giantswarm/node-operator/service/controller"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {
