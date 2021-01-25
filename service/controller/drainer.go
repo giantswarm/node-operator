@@ -12,8 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/node-operator/pkg/project"
-	v1 "github.com/giantswarm/node-operator/service/controller/v1"
-	v2 "github.com/giantswarm/node-operator/service/controller/v2"
+	// v1 "github.com/giantswarm/node-operator/service/controller/v1"
+	// v2 "github.com/giantswarm/node-operator/service/controller/v2"
 )
 
 type DrainerConfig struct {
@@ -32,27 +32,27 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var err error
 
-	var v1ResourceSet []resource.Interface
+	// var v1ResourceSet []resource.Interface
+	// {
+	// 	c := DrainerResourceSetConfig{
+	// 		K8sClient: config.K8sClient,
+	// 		Logger:    config.Logger,
+	// 	}
+
+	// 	v1ResourceSet, err = v1.NewDrainerResourceSet(c)
+	// 	if err != nil {
+	// 		return nil, microerror.Mask(err)
+	// 	}
+	// }
+
+	var resourceSet []resource.Interface
 	{
-		c := v1.DrainerResourceSetConfig{
+		c := DrainerResourceSetConfig{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		v1ResourceSet, err = v1.NewDrainerResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v2ResourceSet []resource.Interface
-	{
-		c := v2.DrainerResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		v2ResourceSet, err = v2.NewDrainerResourceSet(c)
+		resourceSet, err = NewDrainerResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -61,8 +61,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 	var operatorkitController *controller.Controller
 	{
 		resourceSets := [][]resource.Interface{
-			v1ResourceSet,
-			v2ResourceSet,
+			resourceSet,
 		}
 
 		resources := []resource.Interface{}

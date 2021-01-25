@@ -12,7 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/node-operator/service/controller/v2/key"
+	"github.com/giantswarm/node-operator/service/controller/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {

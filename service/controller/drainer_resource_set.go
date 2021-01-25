@@ -1,4 +1,4 @@
-package v2
+package controller
 
 import (
 	"time"
@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 
-	"github.com/giantswarm/node-operator/service/controller/v2/resource/drainer"
+	"github.com/giantswarm/node-operator/service/controller/resource/drainer"
 )
 
 type DrainerResourceSetConfig struct {
