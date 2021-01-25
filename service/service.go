@@ -101,7 +101,6 @@ func New(config Config) (*Service, error) {
 			Name:        project.Name(),
 			Source:      project.Source(),
 			Version:     project.Version(),
-			// VersionBundles: NewVersionBundles(),
 		}
 
 		versionService, err = version.New(c)

@@ -12,8 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/node-operator/pkg/project"
-	// v1 "github.com/giantswarm/node-operator/service/controller/v1"
-	// v2 "github.com/giantswarm/node-operator/service/controller/v2"
 )
 
 type DrainerConfig struct {

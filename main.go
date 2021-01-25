@@ -86,7 +86,6 @@ func mainE() error {
 			Name:        project.Name(),
 			Source:      project.Source(),
 			Version:     project.Version(),
-			// VersionBundles: service.NewVersionBundles(),
 		}
 
 		newCommand, err = command.New(c)
