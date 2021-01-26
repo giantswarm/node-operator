@@ -3,7 +3,7 @@ module github.com/giantswarm/node-operator
 go 1.13
 
 require (
-	github.com/giantswarm/apiextensions/v3 v3.14.2-0.20210121112715-b6b39854aaef
+	github.com/giantswarm/apiextensions/v3 v3.15.1
 	github.com/giantswarm/certs/v3 v3.1.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/k8sclient/v5 v5.0.0
