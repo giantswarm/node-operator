@@ -8,10 +8,12 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller/internal/selector"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/node-operator/pkg/project"
+	"github.com/giantswarm/node-operator/service/controller/key"
 )
 
 type DrainerConfig struct {
@@ -57,6 +59,9 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
+			Selector: selector.NewSelector(
+				key.LabelsDoNotIncludeNodeOperatorVersion,
+			),
 
 			Name: project.Name(),
 		}

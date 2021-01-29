@@ -7,6 +7,11 @@ import (
 	"github.com/giantswarm/microerror"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+)
+
+const (
+	LabelNodeOperatorVersion = "node-operator.giantswarm.io/version"
 )
 
 func ClusterEndpointFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
@@ -58,6 +63,10 @@ func ToDrainerConfig(v interface{}) (v1alpha1.DrainerConfig, error) {
 	o := *p
 
 	return o, nil
+}
+
+func LabelsDoNotIncludeNodeOperatorVersion(labels labels.Labels) bool {
+	return !labels.Has(LabelNodeOperatorVersion)
 }
 
 func VersionBundleVersionFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
