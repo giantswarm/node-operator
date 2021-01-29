@@ -3,16 +3,16 @@ package controller
 import (
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/controller"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/node-operator/pkg/project"
-	v1 "github.com/giantswarm/node-operator/service/controller/v1"
-	v2 "github.com/giantswarm/node-operator/service/controller/v2"
+	"github.com/giantswarm/node-operator/service/controller/key"
 )
 
 type DrainerConfig struct {
@@ -31,27 +31,9 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var err error
 
-	var v1ResourceSet *controller.ResourceSet
+	var resourceSet []resource.Interface
 	{
-		c := v1.DrainerResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		v1ResourceSet, err = v1.NewDrainerResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v2ResourceSet *controller.ResourceSet
-	{
-		c := v2.DrainerResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		v2ResourceSet, err = v2.NewDrainerResourceSet(c)
+		resourceSet, err = NewDrainerResourceSet(DrainerResourceSetConfig(config))
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -59,17 +41,27 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 
 	var operatorkitController *controller.Controller
 	{
+		resourceSets := [][]resource.Interface{
+			resourceSet,
+		}
+
+		resources := []resource.Interface{}
+		for _, set := range resourceSets {
+			resources = append(resources, set...)
+		}
+
 		c := controller.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-			ResourceSets: []*controller.ResourceSet{
-				v1ResourceSet,
-				v2ResourceSet,
-			},
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			Resources:    resources,
 			ResyncPeriod: 2 * time.Minute,
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
+			Selector: controller.NewSelector(
+				// See note on LabelsDoNotIncludeNodeOperatorVersion()
+				key.LabelsDoNotIncludeNodeOperatorVersion,
+			),
 
 			Name: project.Name(),
 		}

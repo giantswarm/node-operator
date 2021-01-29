@@ -3,10 +3,15 @@ package key
 import (
 	"strings"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+)
+
+const (
+	LabelNodeOperatorVersion = "node-operator.giantswarm.io/version"
 )
 
 func ClusterEndpointFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {
@@ -58,6 +63,15 @@ func ToDrainerConfig(v interface{}) (v1alpha1.DrainerConfig, error) {
 	o := *p
 
 	return o, nil
+}
+
+// LabelsDoNotIncludeNodeOperatorVersion returns true if the node-operator version label is not
+// present in the given set of labels. This was added to allow node-operator to reconcile "old"
+// DrainerConfigs, which were versioned using their VersionBundle version, and prevent it from
+// reconciling possible future DrainerConfigs, which would be versioned using the label.
+// For more info, see https://github.com/giantswarm/giantswarm/issues/15423.
+func LabelsDoNotIncludeNodeOperatorVersion(labels labels.Labels) bool {
+	return !labels.Has(LabelNodeOperatorVersion)
 }
 
 func VersionBundleVersionFromDrainerConfig(drainerConfig v1alpha1.DrainerConfig) string {

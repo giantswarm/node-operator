@@ -1,6 +1,8 @@
 package drainer
 
 import (
+	"context"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/to"
 	v1 "k8s.io/api/core/v1"
@@ -9,7 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
+func evictPod(ctx context.Context, k8sClient kubernetes.Interface, pod v1.Pod) error {
 	eviction := &v1beta1.Eviction{
 		ObjectMeta: apismetav1.ObjectMeta{
 			Name:      pod.GetName(),
@@ -20,7 +22,7 @@ func evictPod(k8sClient kubernetes.Interface, pod v1.Pod) error {
 		},
 	}
 
-	err := k8sClient.PolicyV1beta1().Evictions(eviction.GetNamespace()).Evict(eviction)
+	err := k8sClient.PolicyV1beta1().Evictions(eviction.GetNamespace()).Evict(ctx, eviction)
 	if IsCannotEvictPod(err) {
 		return microerror.Mask(cannotEvictPodError)
 	} else if err != nil {
