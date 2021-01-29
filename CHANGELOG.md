@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update dependencies for Kubernetes 1.18.
+- Added `node-operator.giantswarm.io/version` label **anti**-selector to avoid reconciling future `DrainerConfig`s which use it and reserve it for use by future `node-operator` versions.
 
 ## [1.0.2]
 
