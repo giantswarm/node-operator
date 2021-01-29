@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/internal/selector"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -59,7 +58,8 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
-			Selector: selector.NewSelector(
+			Selector: controller.NewSelector(
+				// See note on LabelsDoNotIncludeNodeOperatorVersion()
 				key.LabelsDoNotIncludeNodeOperatorVersion,
 			),
 

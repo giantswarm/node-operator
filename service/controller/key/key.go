@@ -65,6 +65,11 @@ func ToDrainerConfig(v interface{}) (v1alpha1.DrainerConfig, error) {
 	return o, nil
 }
 
+// LabelsDoNotIncludeNodeOperatorVersion returns true if the node-operator version label is not
+// present in the given set of labels. This was added to allow node-operator to reconcile "old"
+// DrainerConfigs, which were versioned using their VersionBundle version, and prevent it from
+// reconciling possible future DrainerConfigs, which would be versioned using the label.
+// For more info, see https://github.com/giantswarm/giantswarm/issues/15423.
 func LabelsDoNotIncludeNodeOperatorVersion(labels labels.Labels) bool {
 	return !labels.Has(LabelNodeOperatorVersion)
 }
