@@ -50,6 +50,12 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			resources = append(resources, set...)
 		}
 
+		// See note on SelectorWithoutNodeOperatorVersion
+		selector, err := key.SelectorWithoutNodeOperatorVersion()
+		if err != nil {
+			return nil, err
+		}
+
 		c := controller.Config{
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
@@ -58,12 +64,11 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
-			Selector: controller.NewSelector(
-				// See note on LabelsDoNotIncludeNodeOperatorVersion()
-				key.LabelsDoNotIncludeNodeOperatorVersion,
-			),
-
-			Name: project.Name(),
+			NewRuntimeObjectListFunc: func() runtime.Object {
+				return new(v1alpha1.DrainerConfigList)
+			},
+			Selector: selector,
+			Name:     project.Name(),
 		}
 
 		operatorkitController, err = controller.New(c)
