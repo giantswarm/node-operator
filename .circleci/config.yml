@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  architect: giantswarm/architect@0.10.1
+  architect: giantswarm/architect@2.2.0
 
 workflows:
   build:
@@ -79,7 +79,6 @@ workflows:
           name: push-to-aws-app-collection
           app_name: "node-operator"
           app_collection_repo: "aws-app-collection"
-          unique: "true"
           requires:
             - push-to-app-catalog-master
           filters:
@@ -92,7 +91,6 @@ workflows:
           name: push-to-azure-app-collection
           app_name: "node-operator"
           app_collection_repo: "azure-app-collection"
-          unique: "true"
           requires:
             - push-to-app-catalog-master
           filters:
@@ -105,7 +103,6 @@ workflows:
           name: push-to-kvm-app-collection
           app_name: "node-operator"
           app_collection_repo: "kvm-app-collection"
-          unique: "true"
           requires:
             - push-to-app-catalog-master
           filters:
