@@ -110,3 +110,15 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+      - architect/push-to-app-collection:
+          name: push-to-vmware-app-collection
+          app_name: "node-operator"
+          app_collection_repo: "vmware-app-collection"
+          requires:
+            - push-to-app-catalog-master
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
