@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  architect: giantswarm/architect@2.2.0
+  architect: giantswarm/architect@2.4.1
 
 workflows:
   build:
@@ -74,6 +74,18 @@ workflows:
           filters:
             branches:
               ignore: master
+
+      - architect/push-to-app-collection:
+          name: push-to-shared-app-collection
+          app_name: "node-operator"
+          app_collection_repo: "shared-app-collection"
+          requires:
+            - push-to-app-catalog-master
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
 
       - architect/push-to-app-collection:
           name: push-to-aws-app-collection
