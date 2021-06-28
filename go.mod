@@ -14,7 +14,7 @@ require (
 	github.com/giantswarm/operatorkit/v4 v4.3.1
 	github.com/giantswarm/tenantcluster/v4 v4.1.0
 	github.com/giantswarm/to v0.3.0
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/viper v1.8.1
 	k8s.io/api v0.18.19
 	k8s.io/apimachinery v0.18.19
 	k8s.io/client-go v0.18.19
