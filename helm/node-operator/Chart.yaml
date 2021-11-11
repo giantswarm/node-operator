@@ -5,5 +5,11 @@ home: "https://github.com/giantswarm/node-operator"
 version: "[[ .Version ]]"
 appVersion: "[[ .AppVersion ]]"
 annotations:
-  application.giantswarm.io/team: "ludacris"
+  application.giantswarm.io/owners: |
+    - provider: aws
+      team: phoenix
+    - provider: azure
+      team: phoenix
+    - provider: kvm
+      team: rocket
   config.giantswarm.io/version: 1.x.x
