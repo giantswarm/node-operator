@@ -1,10 +1,10 @@
 package drainer
 
 import (
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -12,20 +12,20 @@ const (
 )
 
 type Config struct {
-	G8sClient     versioned.Interface
+	Client        client.Client
 	Logger        micrologger.Logger
 	TenantCluster tenantcluster.Interface
 }
 
 type Resource struct {
-	g8sClient     versioned.Interface
+	client        client.Client
 	logger        micrologger.Logger
 	tenantCluster tenantcluster.Interface
 }
 
 func New(c Config) (*Resource, error) {
-	if c.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", c)
+	if c.Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Client must not be empty", c)
 	}
 	if c.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", c)
@@ -35,7 +35,7 @@ func New(c Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient:     c.G8sClient,
+		client:        c.Client,
 		logger:        c.Logger,
 		tenantCluster: c.TenantCluster,
 	}

@@ -56,7 +56,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) ([]resource.Interfac
 	var drainerResource resource.Interface
 	{
 		c := drainer.Config{
-			G8sClient:     config.K8sClient.G8sClient(),
+			Client:        config.K8sClient.CtrlClient(),
 			Logger:        config.Logger,
 			TenantCluster: tenantCluster,
 		}
