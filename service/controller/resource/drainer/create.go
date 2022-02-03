@@ -17,7 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/node-operator/api"
+	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/service/controller/key"
 )
 
