@@ -52,6 +52,11 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			resources = append(resources, set...)
 		}
 
+		// This selector selects DrainerConfigs where the node-operator version label is not
+		// present in the given set of labels. This was added to allow node-operator to reconcile "old"
+		// DrainerConfigs, which were versioned using their VersionBundle version, and prevent it from
+		// reconciling possible future DrainerConfigs, which would be versioned using the label.
+		// For more info, see https://github.com/giantswarm/giantswarm/issues/15423.
 		selector, err := labels.Parse(fmt.Sprintf("!%s", key.LabelNodeOperatorVersion))
 		if err != nil {
 			return nil, microerror.Mask(err)
