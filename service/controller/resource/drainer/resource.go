@@ -3,7 +3,7 @@ package drainer
 import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 

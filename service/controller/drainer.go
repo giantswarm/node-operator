@@ -1,14 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
-	"k8s.io/apimachinery/pkg/runtime"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource"
+	"k8s.io/apimachinery/pkg/labels"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/pkg/project"
@@ -50,18 +52,20 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			resources = append(resources, set...)
 		}
 
+		selector, err := labels.Parse(fmt.Sprintf("!%s", key.LabelNodeOperatorVersion))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		c := controller.Config{
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
 			Resources:    resources,
 			ResyncPeriod: 2 * time.Minute,
-			NewRuntimeObjectFunc: func() runtime.Object {
+			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
-			Selector: controller.NewSelector(
-				// See note on LabelsDoNotIncludeNodeOperatorVersion()
-				key.LabelsDoNotIncludeNodeOperatorVersion,
-			),
+			Selector: selector,
 
 			Name: project.Name(),
 		}
