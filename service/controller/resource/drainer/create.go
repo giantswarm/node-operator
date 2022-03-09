@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/service/controller/key"
 )
 
@@ -53,7 +53,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
 
-		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
+		err := r.client.Status().Update(ctx, &drainerConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -123,7 +123,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
-			_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
+			err := r.client.Status().Update(ctx, &drainerConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -234,7 +234,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
 
-		_, err := r.g8sClient.CoreV1alpha1().DrainerConfigs(drainerConfig.GetNamespace()).UpdateStatus(ctx, &drainerConfig, metav1.UpdateOptions{})
+		err := r.client.Status().Update(ctx, &drainerConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}

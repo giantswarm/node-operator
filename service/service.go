@@ -4,15 +4,15 @@ import (
 	"context"
 	"sync"
 
-	corev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
+	corev1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/service/controller"
