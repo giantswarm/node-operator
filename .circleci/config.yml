@@ -122,15 +122,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
-
-      - architect/push-to-app-collection:
-          name: push-to-vsphere-app-collection
-          app_name: "node-operator"
-          app_collection_repo: "vsphere-app-collection"
-          requires:
-            - push-to-app-catalog-master
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
