@@ -47,7 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	if drainingTimedOut(drainerConfig, time.Now(), 10*time.Minute) {
+	if drainingTimedOut(drainerConfig, time.Now(), 60*time.Minute) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "drainer config exists for too long without draining being finished")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "setting drainer config status of tenant cluster node to timeout condition")
 
