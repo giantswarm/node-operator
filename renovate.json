@@ -1,9 +1,9 @@
 {
   "extends": [
     "config:base",
-    ":reviewer(team:area-kaas)"
+    ":reviewer(team:team-phoenix)"
   ],
-  "labels": ["dependencies"],
+  "labels": ["dependencies", "renovate"],
   "packageRules": [
     {
       "matchPackagePatterns": [".*giantswarm.*"],
