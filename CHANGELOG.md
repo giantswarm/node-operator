@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Change draining timeout from 10 to 60 minutes.
+- Bump dependencies and go to 1.18.
+
 ## [1.3.0] - 2022-03-09
 
 ### Changed
