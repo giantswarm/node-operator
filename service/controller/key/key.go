@@ -47,6 +47,13 @@ func IsDaemonSetPod(pod v1.Pod) bool {
 	return r
 }
 
+func IsDeploymentPod(podName string) bool {
+	r := false
+	r = r || strings.HasPrefix(podName, "cert-exporter-deployment")
+
+	return r
+}
+
 func IsEvictedPod(pod v1.Pod) bool {
 	return pod.Status.Reason == "Evicted"
 }
