@@ -11,6 +11,10 @@ const (
 	Name = "drainerv2"
 )
 
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
+}
+
 type Config struct {
 	Client        client.Client
 	Logger        micrologger.Logger

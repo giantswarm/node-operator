@@ -66,7 +66,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
 			Resources:    resources,
-			ResyncPeriod: 2 * time.Minute,
+			ResyncPeriod: 1 * time.Minute,
 			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.DrainerConfig)
 			},
