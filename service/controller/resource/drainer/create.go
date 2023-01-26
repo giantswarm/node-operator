@@ -3,6 +3,7 @@ package drainer
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/giantswarm/errors/tenant"
@@ -104,7 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// we are configuring here the draining behaviour for the worker nodes by default
 		// however we will modify it for the master node in the node loop right below
 		// WARNING
-		nodeShutdownHelper := &drain.Helper{
+		nodeShutdownHelper := drain.Helper{
 			Ctx:                             ctx,             // pass the current context
 			Client:                          k8sClient,       // the k8s client for making the API calls
 			Force:                           true,            // forcing the draining
@@ -114,12 +115,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			DeleteEmptyDirData:              true,            // delete all the emptyDir volumes
 			DisableEviction:                 false,           // we want to evict and not delete. (might be different for the master nodes)
 			SkipWaitForDeleteTimeoutSeconds: 15,              // in case a node is NotReady then the pods won't be deleted, so don't wait too long
+			Out:                             os.Stdout,
+			ErrOut:                          os.Stderr,
 			OnPodDeletedOrEvicted: func(pod *v1.Pod, usingEviction bool) {
 				if pod != nil {
 					if usingEviction {
-						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("evicted pod %#q", pod.GetName()))
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("evicted pod %s", pod.GetName()))
 					} else {
-						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleted pod %#q", pod.GetName()))
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleted pod %s", pod.GetName()))
 					}
 				}
 			},
@@ -146,7 +149,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			// Cordon the node
-			if err := drain.RunCordonOrUncordon(nodeShutdownHelper, &node, true); err != nil {
+			if err := drain.RunCordonOrUncordon(&nodeShutdownHelper, &node, true); err != nil {
 				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon node %s with error %s", node.GetName(), err))
 			} else {
 
@@ -156,7 +159,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				// It means the cordoning was successful, proceed with the draining
 				// The draining function is going to block until the draining is successful
 				// or a timeout happens (whichever happens first)
-				if err := drain.RunNodeDrain(nodeShutdownHelper, nodeName); err != nil {
+				if err := drain.RunNodeDrain(&nodeShutdownHelper, nodeName); err != nil {
 
 					// This means the draining failed
 					// Log it
