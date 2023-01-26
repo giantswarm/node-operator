@@ -115,10 +115,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			DisableEviction:                 false,           // we want to evict and not delete. (might be different for the master nodes)
 			SkipWaitForDeleteTimeoutSeconds: 15,              // in case a node is NotReady then the pods won't be deleted, so don't wait too long
 			OnPodDeletedOrEvicted: func(pod *v1.Pod, usingEviction bool) {
-				if usingEviction {
-					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("evicted pod %#q", pod.GetName()))
-				} else {
-					r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleted pod %#q", pod.GetName()))
+				if pod != nil {
+					if usingEviction {
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("evicted pod %#q", pod.GetName()))
+					} else {
+						r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleted pod %#q", pod.GetName()))
+					}
 				}
 			},
 		}
