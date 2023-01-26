@@ -126,6 +126,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// Loop through the list of nodes
 		for _, node := range nodes.Items {
 
+			node := node
+
 			// If the node name does not match, simply continue
 			if node.Name != nodeName {
 				continue
