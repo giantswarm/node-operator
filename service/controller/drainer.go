@@ -15,9 +15,11 @@ import (
 	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/service/controller/key"
+	event "github.com/giantswarm/node-operator/service/recorder"
 )
 
 type DrainerConfig struct {
+	Event     event.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }

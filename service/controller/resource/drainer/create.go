@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -13,6 +14,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/kubectl/pkg/drain"
@@ -22,6 +24,13 @@ import (
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	drainerConfig, err := key.ToDrainerConfig(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Get AWSCluster Object to write events on it
+	awsCluster := &infrastructurev1alpha3.AWSCluster{}
+	err = r.client.Get(ctx, types.NamespacedName{Name: key.ClusterIDFromDrainerConfig(drainerConfig), Namespace: drainerConfig.Namespace}, awsCluster)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -151,6 +160,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// Cordon the node
 			if err := drain.RunCordonOrUncordon(&nodeShutdownHelper, &node, true); err != nil {
 				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon node %s with error %s", node.GetName(), err))
+				r.event.Warn(ctx, awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon node %s with error %s", node.GetName(), err))
 			} else {
 
 				// Log the node as cordoned
@@ -164,9 +174,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 					// This means the draining failed
 					// Log it
 					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to drain node %s with error %s", node.GetName(), err))
+					r.event.Warn(ctx, awsCluster, "DrainingFailed", fmt.Sprintf("failed to drain node %s with error %s", node.GetName(), err))
 
 					// log all the pods that could not be evicted or deleted
-					r.logUnevictedPods(k8sClient, ctx, &node)
+					r.logUnevictedPods(k8sClient, ctx, awsCluster, &node)
 
 					// now set the timeout condition, which means the aws-operator will proceed to delete the node
 					r.logger.LogCtx(ctx, "level", "debug", "message",
@@ -222,7 +233,7 @@ func nodeIsMaster(node *v1.Node) bool {
 
 }
 
-func (r *Resource) logUnevictedPods(k8sClient kubernetes.Interface, ctx context.Context, node *v1.Node) {
+func (r *Resource) logUnevictedPods(k8sClient kubernetes.Interface, ctx context.Context, awsCluster *infrastructurev1alpha3.AWSCluster, node *v1.Node) {
 	// Get the list of pods for the specific node
 	nodePods, err := nodePods(k8sClient, ctx, node)
 
@@ -230,12 +241,14 @@ func (r *Resource) logUnevictedPods(k8sClient kubernetes.Interface, ctx context.
 	if err == nil {
 		for _, pod := range nodePods {
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("node %s could not evict/delete pod %s", node.GetName(), pod.GetName()))
+			r.event.Warn(ctx, awsCluster, "DrainerConfigFailed", fmt.Sprintf("node %s could not evict/delete pod %s", node.GetName(), pod.GetName()))
 		}
 	}
 
 	// if instead we got an error log it
 	if err != nil {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("could not get the list of pods for the node %s: %s", node.GetName(), err))
+		r.event.Warn(ctx, awsCluster, "DrainerConfigFailed", fmt.Sprintf("could not get the list of pods for the node %s: %s", node.GetName(), err))
 	}
 }
 
