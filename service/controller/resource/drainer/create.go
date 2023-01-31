@@ -147,6 +147,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				continue
 			}
 
+			typeOfNode := "worker"
 			// In case of master nodes, just delete the pods, and don't evict them
 			if nodeIsMaster(&node) {
 
@@ -155,16 +156,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 				// We want the master nodes to be terminated rather quickly
 				nodeShutdownHelper.Timeout = 1 * time.Minute
+
+				// Set type to master
+				typeOfNode = "master"
 			}
 
 			// Cordon the node
 			if err := drain.RunCordonOrUncordon(&nodeShutdownHelper, &node, true); err != nil {
-				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon node %s with error %s", node.GetName(), err))
-				r.event.Warn(ctx, awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon node %s with error %s", node.GetName(), err))
+				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon %s node with error %s", typeOfNode, err))
+				r.event.Warn(ctx, awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon %s node %s with error %s", typeOfNode, node.GetName(), err))
 			} else {
 
 				// Log the node as cordoned
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned tenant cluster node: %s", node.GetName()))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %s node", typeOfNode))
 
 				// It means the cordoning was successful, proceed with the draining
 				// The draining function is going to block until the draining is successful
@@ -173,15 +177,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 					// This means the draining failed
 					// Log it
-					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to drain node %s with error %s", node.GetName(), err))
-					r.event.Warn(ctx, awsCluster, "DrainingFailed", fmt.Sprintf("failed to drain node %s with error %s", node.GetName(), err))
+					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to drain %s node with error %s", typeOfNode, err))
+					r.event.Warn(ctx, awsCluster, "DrainingFailed", fmt.Sprintf("failed to drain %s node %s with error %s", typeOfNode, node.GetName(), err))
 
 					// log all the pods that could not be evicted or deleted
-					r.logUnevictedPods(k8sClient, ctx, awsCluster, &node)
+					r.logUnevictedPods(k8sClient, ctx, awsCluster, typeOfNode, &node)
 
 					// now set the timeout condition, which means the aws-operator will proceed to delete the node
-					r.logger.LogCtx(ctx, "level", "debug", "message",
-						fmt.Sprintf("%s setting drainer config status of tenant cluster node to timeout condition", node.GetName()))
+					r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of tenant cluster %s node to timeout condition", typeOfNode))
 
 					drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
 
@@ -202,7 +205,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 					if err != nil {
 						return microerror.Mask(err)
 					}
-					r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster node %s to drained condition", node.GetName()))
+					r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
+					r.event.Info(ctx, awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
 
 				}
 			}
@@ -233,21 +237,21 @@ func nodeIsMaster(node *v1.Node) bool {
 
 }
 
-func (r *Resource) logUnevictedPods(k8sClient kubernetes.Interface, ctx context.Context, awsCluster *infrastructurev1alpha3.AWSCluster, node *v1.Node) {
+func (r *Resource) logUnevictedPods(k8sClient kubernetes.Interface, ctx context.Context, awsCluster *infrastructurev1alpha3.AWSCluster, typeOfNode string, node *v1.Node) {
 	// Get the list of pods for the specific node
 	nodePods, err := nodePods(k8sClient, ctx, node)
 
 	// Log all the pods that could not be drained/deleted
 	if err == nil {
 		for _, pod := range nodePods {
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("node %s could not evict/delete pod %s", node.GetName(), pod.GetName()))
-			r.event.Warn(ctx, awsCluster, "DrainerConfigFailed", fmt.Sprintf("node %s could not evict/delete pod %s", node.GetName(), pod.GetName()))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("could not evict/delete pod %s on %s node", pod.GetName(), typeOfNode))
+			r.event.Warn(ctx, awsCluster, "DrainerConfigFailed", fmt.Sprintf("%s node %s could not evict/delete pod %s", typeOfNode, node.GetName(), pod.GetName()))
 		}
 	}
 
 	// if instead we got an error log it
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("could not get the list of pods for the node %s: %s", node.GetName(), err))
+		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("could not get the list of pods: %s", err))
 		r.event.Warn(ctx, awsCluster, "DrainerConfigFailed", fmt.Sprintf("could not get the list of pods for the node %s: %s", node.GetName(), err))
 	}
 }
