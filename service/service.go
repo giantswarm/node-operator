@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -16,6 +17,7 @@ import (
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/service/controller"
+	"github.com/giantswarm/node-operator/service/recorder"
 )
 
 type Config struct {
@@ -80,9 +82,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var event recorder.Interface
+	{
+		c := recorder.Config{
+			K8sClient: k8sClient,
+
+			Component: fmt.Sprintf("%s-%s", project.Name(), project.Version()),
+		}
+
+		event = recorder.New(c)
+	}
+
 	var drainerController *controller.Drainer
 	{
 		c := controller.DrainerConfig{
+			Event:     event,
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 		}
