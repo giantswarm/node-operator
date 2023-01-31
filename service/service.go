@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -71,6 +72,7 @@ func New(config Config) (*Service, error) {
 			Logger: config.Logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				corev1alpha1.AddToScheme,
+				infrastructurev1alpha3.AddToScheme,
 			},
 
 			RestConfig: restConfig,

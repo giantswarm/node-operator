@@ -53,6 +53,13 @@ rules:
       - create
       - patch
       - update
+  - apiGroups:
+      - infrastructure.giantswarm.io
+    resources:
+      - awsclusters
+      - awsclusters/status
+    verbs:
+      - "*"
   # The node-operator watches secrets in order to create Kubernetes clients for
   # being able to access guest clusters to drain its nodes. It must not be
   # allowed to do anything else than reading secrets.
