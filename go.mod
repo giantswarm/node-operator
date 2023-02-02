@@ -1,6 +1,6 @@
 module github.com/giantswarm/node-operator
 
-go 1.19
+go 1.18
 
 require (
 	github.com/giantswarm/apiextensions/v6 v6.4.1
