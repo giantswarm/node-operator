@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Use Kubernetes Events on `AWSCluster` CR for draining status updates.
+
+### Changed
+
+- Replace current logic with Kubernetes internal cordon/drain logic.
+
 ## [1.4.2] - 2022-12-06
 
 ### Fixed

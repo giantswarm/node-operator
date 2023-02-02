@@ -14,6 +14,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-to-quay
           image: "quay.io/giantswarm/node-operator"
           username_envar: "QUAY_USERNAME"
@@ -25,6 +26,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-to-aliyun-master
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/node-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -38,6 +40,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-to-aliyun-pr
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/node-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -51,6 +54,7 @@ workflows:
               ignore: /^v.*/
 
       - architect/push-to-app-catalog:
+          context: architect
           name: push-to-app-catalog-master
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
@@ -65,6 +69,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-catalog:
+          context: architect
           name: push-to-app-catalog-pr
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
@@ -76,6 +81,7 @@ workflows:
               ignore: master
 
       - architect/push-to-app-collection:
+          context: architect
           name: push-to-shared-app-collection
           app_name: "node-operator"
           app_collection_repo: "shared-app-collection"
@@ -88,6 +94,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-collection:
+          context: architect
           name: push-to-aws-app-collection
           app_name: "node-operator"
           app_collection_repo: "aws-app-collection"
@@ -100,6 +107,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-collection:
+          context: architect
           name: push-to-azure-app-collection
           app_name: "node-operator"
           app_collection_repo: "azure-app-collection"
