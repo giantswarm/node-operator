@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -16,6 +18,7 @@ import (
 	"github.com/giantswarm/node-operator/flag"
 	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/service/controller"
+	"github.com/giantswarm/node-operator/service/recorder"
 )
 
 type Config struct {
@@ -69,6 +72,7 @@ func New(config Config) (*Service, error) {
 			Logger: config.Logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				corev1alpha1.AddToScheme,
+				infrastructurev1alpha3.AddToScheme,
 			},
 
 			RestConfig: restConfig,
@@ -80,9 +84,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var event recorder.Interface
+	{
+		c := recorder.Config{
+			K8sClient: k8sClient,
+
+			Component: fmt.Sprintf("%s-%s", project.Name(), project.Version()),
+		}
+
+		event = recorder.New(c)
+	}
+
 	var drainerController *controller.Drainer
 	{
 		c := controller.DrainerConfig{
+			Event:     event,
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 		}

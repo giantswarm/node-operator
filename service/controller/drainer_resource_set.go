@@ -13,9 +13,11 @@ import (
 	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 
 	"github.com/giantswarm/node-operator/service/controller/resource/drainer"
+	event "github.com/giantswarm/node-operator/service/recorder"
 )
 
 type DrainerResourceSetConfig struct {
+	Event     event.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
@@ -56,6 +58,7 @@ func NewDrainerResourceSet(config DrainerResourceSetConfig) ([]resource.Interfac
 	var drainerResource resource.Interface
 	{
 		c := drainer.Config{
+			Event:         config.Event,
 			Client:        config.K8sClient.CtrlClient(),
 			Logger:        config.Logger,
 			TenantCluster: tenantCluster,
