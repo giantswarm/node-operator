@@ -15,9 +15,11 @@ import (
 	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/node-operator/pkg/project"
 	"github.com/giantswarm/node-operator/service/controller/key"
+	event "github.com/giantswarm/node-operator/service/recorder"
 )
 
 type DrainerConfig struct {
+	Event     event.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
@@ -66,7 +68,7 @@ func NewDrainer(config DrainerConfig) (*Drainer, error) {
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
 			Resources:    resources,
-			ResyncPeriod: 2 * time.Minute,
+			ResyncPeriod: 1 * time.Minute,
 			NewRuntimeObjectFunc: func() client.Object {
 				return new(v1alpha1.DrainerConfig)
 			},

@@ -5,20 +5,28 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	event "github.com/giantswarm/node-operator/service/recorder"
 )
 
 const (
 	Name = "drainerv2"
 )
 
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
+}
+
 type Config struct {
 	Client        client.Client
+	Event         event.Interface
 	Logger        micrologger.Logger
 	TenantCluster tenantcluster.Interface
 }
 
 type Resource struct {
 	client        client.Client
+	event         event.Interface
 	logger        micrologger.Logger
 	tenantCluster tenantcluster.Interface
 }
@@ -36,6 +44,7 @@ func New(c Config) (*Resource, error) {
 
 	r := &Resource{
 		client:        c.Client,
+		event:         c.Event,
 		logger:        c.Logger,
 		tenantCluster: c.TenantCluster,
 	}
