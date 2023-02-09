@@ -1,6 +1,8 @@
 package drainer
 
 import (
+	"sync"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
@@ -24,11 +26,16 @@ type Config struct {
 	TenantCluster tenantcluster.Interface
 }
 
+type NodeName = string
+
 type Resource struct {
 	client        client.Client
 	event         event.Interface
 	logger        micrologger.Logger
 	tenantCluster tenantcluster.Interface
+
+	lock     sync.RWMutex
+	draining map[NodeName]chan error
 }
 
 func New(c Config) (*Resource, error) {
@@ -47,6 +54,8 @@ func New(c Config) (*Resource, error) {
 		event:         c.Event,
 		logger:        c.Logger,
 		tenantCluster: c.TenantCluster,
+		lock:          sync.RWMutex{},
+		draining:      make(map[string]chan error),
 	}
 
 	return r, nil
