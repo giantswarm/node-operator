@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
+	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,13 +38,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Get the node name we want to cordon and drain
 	nodeName := key.NodeNameFromDrainerConfig(drainerConfig)
-
-	// // Check if the draining operation is alreaddy in progress.
-	// // In this case continue
-	// if drainerConfig.Status.HasDrainingCondition() {
-	// 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%s draining is in progress", nodeName))
-	// 	return nil
-	// }
 
 	if drainerConfig.Status.HasDrainedCondition() {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%s drainer config status has drained condition", nodeName))
@@ -168,9 +162,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				typeOfNode = "master"
 			}
 
-			// Log the node as cordoned
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %s node", typeOfNode))
-
 			// Check if we are done with the draining of the specific node
 			if draining, ok := r.draining[nodeName]; ok {
 				select {
@@ -193,68 +184,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			} else {
 
-				await := make(chan error, 1)
-
 				// drain async and add the status to the state
 				// Important run in a different go routine
-				go func() {
-
-					// Cordon the node
-					if err := drain.RunCordonOrUncordon(&nodeShutdownHelper, &node, true); err != nil {
-						r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon %s node with error %s", typeOfNode, err))
-						r.event.Warn(ctx, awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon %s node %s with error %s", typeOfNode, node.GetName(), err))
-						return
-					}
-
-					r.lock.Lock()
-					r.draining[nodeName] = await
-					r.lock.Unlock()
-
-					// It means the cordoning was successful, proceed with the draining
-					// The draining function is going to block until the draining is successful
-					// or a timeout happens (whichever happens first)
-					if err := drain.RunNodeDrain(&nodeShutdownHelper, nodeName); err != nil {
-
-						// This means the draining failed
-						// Log it
-						r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to drain %s node with error %s", typeOfNode, err))
-						r.event.Warn(ctx, awsCluster, "DrainingFailed", fmt.Sprintf("failed to drain %s node %s with error %s", typeOfNode, node.GetName(), err))
-
-						// log all the pods that could not be evicted or deleted
-						r.logUnevictedPods(k8sClient, ctx, awsCluster, typeOfNode, &node)
-
-						// now set the timeout condition, which means the aws-operator will proceed to delete the node
-						r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of tenant cluster %s node to timeout condition", typeOfNode))
-
-						// Set the timeout condition
-						drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
-
-						// Apply it to the resource in k8s
-						err := r.client.Status().Update(ctx, &drainerConfig)
-
-						if err != nil {
-							await <- microerror.Mask(err)
-							return
-						}
-					} else {
-
-						// if we got here it means we have got no errors and the node is successfully drained
-						// Set the drainer status in the node so that the aws-operator can proceed with the deletion
-						// of the node
-						drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
-
-						// Now update the node status
-						err := r.client.Status().Update(ctx, &drainerConfig)
-						if err != nil {
-							await <- microerror.Mask(err)
-							return
-						}
-
-						r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
-						r.event.Info(ctx, awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
-					}
-					await <- nil
-				}()
+				go r.drainNode(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
 
 			}
 
@@ -263,6 +195,79 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func (r *Resource) drainNode(
+	nodeName string,
+	typeOfNode string,
+	ctx context.Context,
+	awsCluster infrastructurev1alpha3.AWSCluster,
+	shutdownHelper drain.Helper,
+	node v1.Node, k8sClient kubernetes.Interface,
+	drainerConfig v1alpha1.DrainerConfig) {
+
+	// Await channel
+	await := make(chan error, 1)
+
+	// Cordon the node
+	if err := drain.RunCordonOrUncordon(&shutdownHelper, &node, true); err != nil {
+		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon %s node with error %s", typeOfNode, err))
+		r.event.Warn(ctx, &awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon %s node %s with error %s", typeOfNode, node.GetName(), err))
+		return
+	}
+
+	// Log the node as cordoned
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %s node", typeOfNode))
+
+	r.lock.Lock()
+	r.draining[nodeName] = await
+	r.lock.Unlock()
+
+	// It means the cordoning was successful, proceed with the draining
+	// The draining function is going to block until the draining is successful
+	// or a timeout happens (whichever happens first)
+	if err := drain.RunNodeDrain(&shutdownHelper, nodeName); err != nil {
+
+		// This means the draining failed
+		// Log it
+		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to drain %s node with error %s", typeOfNode, err))
+		r.event.Warn(ctx, &awsCluster, "DrainingFailed", fmt.Sprintf("failed to drain %s node %s with error %s", typeOfNode, node.GetName(), err))
+
+		// log all the pods that could not be evicted or deleted
+		r.logUnevictedPods(k8sClient, ctx, &awsCluster, typeOfNode, &node)
+
+		// now set the timeout condition, which means the aws-operator will proceed to delete the node
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of tenant cluster %s node to timeout condition", typeOfNode))
+
+		// Set the timeout condition
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
+
+		// Apply it to the resource in k8s
+		err := r.client.Status().Update(ctx, &drainerConfig)
+
+		if err != nil {
+			await <- microerror.Mask(err)
+			return
+		}
+
+	} else {
+
+		// if we got here it means we have got no errors and the node is successfully drained
+		// Set the drainer status in the node so that the aws-operator can proceed with the deletion
+		// of the node
+		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
+
+		// Now update the node status
+		err := r.client.Status().Update(ctx, &drainerConfig)
+		if err != nil {
+			await <- microerror.Mask(err)
+			return
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
+		r.event.Info(ctx, &awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
+	}
+	await <- nil
 }
 
 // Checks whether a node is a master node
