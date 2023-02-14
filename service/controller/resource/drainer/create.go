@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	v1alpha1 "github.com/giantswarm/node-operator/api"
 	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,6 +18,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/kubectl/pkg/drain"
+
+	v1alpha1 "github.com/giantswarm/node-operator/api"
 
 	"github.com/giantswarm/node-operator/service/controller/key"
 )
