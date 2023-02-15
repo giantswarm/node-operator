@@ -354,10 +354,15 @@ func (r *Resource) drainNodeAsync(
 // Checks whether a node is a master node
 func nodeIsMaster(node *v1.Node) bool {
 
-	for key := range node.Labels {
+	for key, value := range node.Labels {
 
 		// New label
 		if key == "node-role.kubernetes.io/control-plane" {
+			return true
+		}
+
+		// Not sure where this comes from...
+		if key == "node.kubernetes.io/master" {
 			return true
 		}
 
@@ -365,6 +370,11 @@ func nodeIsMaster(node *v1.Node) bool {
 		if key == "node-role.kubernetes.io/master" {
 			return true
 		}
+
+		if key == "role" && value == "master" {
+			return true
+		}
+
 	}
 
 	return false
