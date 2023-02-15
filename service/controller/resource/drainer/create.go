@@ -120,9 +120,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Ctx:                             ctx,             // pass the current context
 			Client:                          k8sClient,       // the k8s client for making the API calls
 			Force:                           true,            // forcing the draining
-			GracePeriodSeconds:              60,              // 60 seconds of timeout before deleting the pod
+			GracePeriodSeconds:              30,              // 60 seconds of timeout before deleting the pod
 			IgnoreAllDaemonSets:             true,            // ignore the daemonsets
-			Timeout:                         2 * time.Minute, // give a 5 minutes timeout
+			Timeout:                         1 * time.Minute, // give a 5 minutes timeout
 			DeleteEmptyDirData:              true,            // delete all the emptyDir volumes
 			DisableEviction:                 false,           // we want to evict and not delete. (might be different for the master nodes)
 			SkipWaitForDeleteTimeoutSeconds: 15,              // in case a node is NotReady then the pods won't be deleted, so don't wait too long
@@ -153,44 +153,57 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// In case of master nodes, just delete the pods, and don't evict them
 			if nodeIsMaster(&node) {
 
-				// For the master node wait 30 seconds for a pod to be terminated
-				nodeShutdownHelper.GracePeriodSeconds = 30
-
-				// We want the master nodes to be terminated rather quickly
-				nodeShutdownHelper.Timeout = 1 * time.Minute
-
 				// Set type to master
 				typeOfNode = "master"
-			}
 
-			// Check if we are done with the draining of the specific node
-			if draining, ok := r.draining[nodeName]; ok {
-				select {
-				case drainingError := <-draining:
+				// Drain sequentially
+				return r.drainNodeBlocking(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
+			} else {
+				// In case it's a worker node, there are possibly multiple node pools with
+				// nodes rolling, so we need to proceed in parallel
 
-					// Set the timeout condition
-					drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
+				// Check if:
+				// - the node was already being drained
+				// - we are done with the draining of the specific node
+				if draining, ok := r.draining[nodeName]; ok {
+					select {
+					case drainingError := <-draining:
 
-					// if it succeeded then remove the entry for the specific node from the state
-					if err := r.client.Status().Update(ctx, &drainerConfig); err == nil {
-						delete(r.draining, nodeName)
-					} else {
-						// otherwise re-queue the error so that we can retry again
+						// It means we successfully drained a node
+						if drainingError == nil {
+							// Remove the node from the state
+							r.removeNodeFromState(nodeName)
+
+							// update the node status to drained and return
+							return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
+						}
+
+						// Otherwise we had an error, so set the condition to a timeout
+						err := r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
+
+						// If updating the status of the drainer config succeeded
+						// then we are done
+						if err == nil {
+							r.removeNodeFromState(nodeName)
+							return nil
+						}
+
+						// Otherwise try again
 						draining <- drainingError
+
+						// Sebastian: I like the number 7
+					case <-time.After(7 * time.Second):
+						// we want to wait only for a max of N seconds, otherwise continue
 					}
 
-				case <-time.After(5 * time.Second):
-					// we want to wait only for a max of N seconds, otherwise continue
+				} else {
+
+					// drain async and add the status to the state
+					// Important run in a different go routine
+					go r.drainNodeAsync(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
+
 				}
-
-			} else {
-
-				// drain async and add the status to the state
-				// Important run in a different go routine
-				go r.drainNode(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
-
 			}
-
 			break
 		}
 	}
@@ -198,33 +211,53 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) drainNode(
-	nodeName string,
-	typeOfNode string,
-	ctx context.Context,
+// Removes the node from the shared state
+func (r *Resource) removeNodeFromState(nodeName string) {
+	r.lock.Lock()
+	delete(r.draining, nodeName)
+	r.lock.Unlock()
+}
+
+// Update the drainer config status
+func (r *Resource) updateDrainerStatus(ctx context.Context,
+	status v1alpha1.DrainerConfigStatusCondition,
+	drainerConfig v1alpha1.DrainerConfig, k8sClient kubernetes.Interface) error {
+
+	// Set the status
+	drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, status)
+
+	// Update the CR
+	return r.client.Status().Update(ctx, &drainerConfig)
+
+}
+
+// Cordons a node in a blocking way
+func (r *Resource) cordon(ctx context.Context,
 	awsCluster infrastructurev1alpha3.AWSCluster,
 	shutdownHelper drain.Helper,
-	node v1.Node, k8sClient kubernetes.Interface,
-	drainerConfig v1alpha1.DrainerConfig) {
-
-	// Await channel
-	await := make(chan error, 1)
+	node v1.Node, typeOfNode string) error {
 
 	// Cordon the node
 	if err := drain.RunCordonOrUncordon(&shutdownHelper, &node, true); err != nil {
 		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("failed to cordon %s node with error %s", typeOfNode, err))
 		r.event.Warn(ctx, &awsCluster, "CordoningFailed", fmt.Sprintf("failed to cordon %s node %s with error %s", typeOfNode, node.GetName(), err))
-		return
+		return err
 	}
 
 	// Log the node as cordoned
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned %s node", typeOfNode))
+	return nil
+}
 
-	r.lock.Lock()
-	r.draining[nodeName] = await
-	r.lock.Unlock()
+// Shared method for draining a node
+func (r *Resource) drainNode(nodeName string,
+	typeOfNode string,
+	ctx context.Context,
+	awsCluster infrastructurev1alpha3.AWSCluster,
+	shutdownHelper drain.Helper,
+	node v1.Node, k8sClient kubernetes.Interface,
+	drainerConfig v1alpha1.DrainerConfig) error {
 
-	// It means the cordoning was successful, proceed with the draining
 	// The draining function is going to block until the draining is successful
 	// or a timeout happens (whichever happens first)
 	if err := drain.RunNodeDrain(&shutdownHelper, nodeName); err != nil {
@@ -237,38 +270,85 @@ func (r *Resource) drainNode(
 		// log all the pods that could not be evicted or deleted
 		r.logUnevictedPods(k8sClient, ctx, &awsCluster, typeOfNode, &node)
 
-		// now set the timeout condition, which means the aws-operator will proceed to delete the node
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("setting drainer config status of tenant cluster %s node to timeout condition", typeOfNode))
+		// Return the error
+		return microerror.Mask(err)
 
-		// Set the timeout condition
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewTimeoutCondition())
-
-		// Apply it to the resource in k8s
-		err := r.client.Status().Update(ctx, &drainerConfig)
-
-		if err != nil {
-			await <- microerror.Mask(err)
-			return
-		}
-
-	} else {
-
-		// if we got here it means we have got no errors and the node is successfully drained
-		// Set the drainer status in the node so that the aws-operator can proceed with the deletion
-		// of the node
-		drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
-
-		// Now update the node status
-		err := r.client.Status().Update(ctx, &drainerConfig)
-		if err != nil {
-			await <- microerror.Mask(err)
-			return
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
-		r.event.Info(ctx, &awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
 	}
-	await <- nil
+
+	// // if we got here it means we have got no errors and the node is successfully drained
+	// // Set the drainer status in the node so that the aws-operator can proceed with the deletion
+	// // of the node
+	// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
+
+	// // Now update the node status, in case of error updating the node, return it
+	// if err := r.client.Status().Update(ctx, &drainerConfig); err != nil {
+	// 	return microerror.Mask(err)
+	// }
+
+	// Emit the events that the draining was successful
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
+	r.event.Info(ctx, &awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
+
+	return nil
+
+}
+
+// Drains a node in a blocking manner
+func (r *Resource) drainNodeBlocking(
+	nodeName string,
+	typeOfNode string,
+	ctx context.Context,
+	awsCluster infrastructurev1alpha3.AWSCluster,
+	shutdownHelper drain.Helper,
+	node v1.Node, k8sClient kubernetes.Interface,
+	drainerConfig v1alpha1.DrainerConfig) error {
+
+	// Cordon the node
+	if err := r.cordon(ctx, awsCluster, shutdownHelper, node, typeOfNode); err != nil {
+		return err
+	}
+
+	// Drain the node sync
+	err := r.drainNode(nodeName, typeOfNode, ctx, awsCluster, shutdownHelper, node, k8sClient, drainerConfig)
+
+	// In case of error mark the node in a timeout status so that it gets removed
+	if err != nil {
+		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
+	}
+
+	// In case of success mark the node as sucessfully drained
+	return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
+
+}
+
+// Drain a node
+func (r *Resource) drainNodeAsync(
+	nodeName string,
+	typeOfNode string,
+	ctx context.Context,
+	awsCluster infrastructurev1alpha3.AWSCluster,
+	shutdownHelper drain.Helper,
+	node v1.Node, k8sClient kubernetes.Interface,
+	drainerConfig v1alpha1.DrainerConfig) {
+
+	// Cordon the node
+	if err := r.cordon(ctx, awsCluster, shutdownHelper, node, typeOfNode); err != nil {
+		// return in case of failure so that we can retry
+		return
+	}
+
+	// Await channel
+	// Create a channel with a buffer, so that we don't block
+	await := make(chan error, 2)
+
+	// Add the node to the shared state because it's about to be drained
+	r.lock.Lock()
+	r.draining[nodeName] = await
+	r.lock.Unlock()
+
+	// Drain the node now
+	err := r.drainNode(nodeName, typeOfNode, ctx, awsCluster, shutdownHelper, node, k8sClient, drainerConfig)
+	await <- microerror.Mask(err)
 }
 
 // Checks whether a node is a master node
