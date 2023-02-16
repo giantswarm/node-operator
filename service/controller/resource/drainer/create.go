@@ -173,53 +173,53 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				typeOfNode = "master"
 
 				// Drain sequentially
-				return r.drainNodeBlocking(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
-			} else {
-				// In case it's a worker node, there are possibly multiple node pools with
-				// nodes rolling, so we need to proceed in parallel
+				//return r.drainNodeBlocking(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
+			} //else {
+			// In case it's a worker node, there are possibly multiple node pools with
+			// nodes rolling, so we need to proceed in parallel
 
-				// Check if:
-				// - the node was already being drained
-				// - we are done with the draining of the specific node
-				if draining, ok := r.draining[nodeName]; ok {
-					select {
-					case drainingError := <-draining:
+			// Check if:
+			// - the node was already being drained
+			// - we are done with the draining of the specific node
+			if draining, ok := r.draining[nodeName]; ok {
+				select {
+				case drainingError := <-draining:
 
-						// It means we successfully drained a node
-						if drainingError == nil {
-							// Remove the node from the state
-							r.removeNodeFromState(nodeName)
+					// It means we successfully drained a node
+					if drainingError == nil {
+						// Remove the node from the state
+						r.removeNodeFromState(nodeName)
 
-							// update the node status to drained and return
-							return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
-						}
-
-						// Otherwise we had an error, so set the condition to a timeout
-						err := r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
-
-						// If updating the status of the drainer config succeeded
-						// then we are done
-						if err == nil {
-							r.removeNodeFromState(nodeName)
-							return nil
-						}
-
-						// Otherwise try again
-						draining <- drainingError
-
-						// Sebastian: I like the number 7
-					case <-time.After(7 * time.Second):
-						// we want to wait only for a max of N seconds, otherwise continue
+						// update the node status to drained and return
+						return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
 					}
 
-				} else {
+					// Otherwise we had an error, so set the condition to a timeout
+					err := r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
 
-					// drain async and add the status to the state
-					// Important run in a different go routine
-					go r.drainNodeAsync(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
+					// If updating the status of the drainer config succeeded
+					// then we are done
+					if err == nil {
+						r.removeNodeFromState(nodeName)
+						return nil
+					}
 
+					// Otherwise try again
+					draining <- drainingError
+
+					// Sebastian: I like the number 7
+				case <-time.After(7 * time.Second):
+					// we want to wait only for a max of N seconds, otherwise continue
 				}
+
+			} else {
+
+				// drain async and add the status to the state
+				// Important run in a different go routine
+				go r.drainNodeAsync(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
+
 			}
+			//}
 			break
 		}
 	}
