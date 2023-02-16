@@ -120,9 +120,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Ctx:                             ctx,             // pass the current context
 			Client:                          k8sClient,       // the k8s client for making the API calls
 			Force:                           true,            // forcing the draining
-			GracePeriodSeconds:              30,              // 60 seconds of timeout before deleting the pod
+			GracePeriodSeconds:              60,              // 60 seconds of timeout before deleting the pod
 			IgnoreAllDaemonSets:             true,            // ignore the daemonsets
-			Timeout:                         1 * time.Minute, // give a 5 minutes timeout
+			Timeout:                         5 * time.Minute, // give a 5 minutes timeout
 			DeleteEmptyDirData:              true,            // delete all the emptyDir volumes
 			DisableEviction:                 false,           // we want to evict and not delete. (might be different for the master nodes)
 			SkipWaitForDeleteTimeoutSeconds: 15,              // in case a node is NotReady then the pods won't be deleted, so don't wait too long
@@ -152,6 +152,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			typeOfNode := "worker"
 			// In case of master nodes, just delete the pods, and don't evict them
 			if nodeIsMaster(&node) {
+
+				// 45 seconds pods termination grace period
+				nodeShutdownHelper.GracePeriodSeconds = 45
+
+				// 1 minute max timout since we are blocking here
+				nodeShutdownHelper.Timeout = 2 * time.Minute
 
 				// Set type to master
 				typeOfNode = "master"
