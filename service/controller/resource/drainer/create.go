@@ -139,16 +139,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 		}
 
-		// if there are some NonReady masters then wait a bit
-		// we do not want to run the risk of draining more than 1 master at the time.
-		// WARNING: this should be take care of in the aws-operator!
-		// However doing so would require a full blown release.
-		// The node operator instead can be released without the customers having to upgrade
-		if !r.mastersAreReady(nodes.Items) {
-			r.logger.LogCtx(ctx, "level", "info", "message", "At least one master is NotReady. Waiting for it to become ready...")
-			return nil
-		}
-
 		// Loop through the list of nodes
 		for _, node := range nodes.Items {
 
@@ -162,6 +152,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			typeOfNode := "worker"
 			// In case of master nodes, just delete the pods, and don't evict them
 			if nodeIsMaster(&node) {
+
+				// if we are draining a master node and there are some NonReady masters then wait a bit
+				// we do not want to run the risk of draining more than 1 master at the time.
+				// WARNING: this should be take care of in the aws-operator!
+				// However doing so would require a full blown release.
+				// The node operator instead can be released without the customers having to upgrade
+				if !r.mastersAreReady(nodes.Items) {
+					r.logger.LogCtx(ctx, "level", "info", "message", "At least one master is NotReady. Waiting for it to become ready...")
+					return nil
+				}
 
 				// 45 seconds pods termination grace period
 				nodeShutdownHelper.GracePeriodSeconds = 45
