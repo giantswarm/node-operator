@@ -139,6 +139,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 		}
 
+		// if there are some NonReady masters then wait a bit
+		// we do not want to run the risk of draining more than 1 master at the time.
+		// WARNING: this should be take care of in the aws-operator!
+		// However doing so would require a full blown release.
+		// The node operator instead can be released without the customers having to upgrade
+		if !r.mastersAreReady(nodes.Items) {
+			r.logger.LogCtx(ctx, "level", "info", "message", "At least one master is NotReady. Waiting for it to become ready...")
+			return nil
+		}
+
 		// Loop through the list of nodes
 		for _, node := range nodes.Items {
 
@@ -215,6 +225,26 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+// Checks whether the masters are all ready
+func (r *Resource) mastersAreReady(nodes []v1.Node) bool {
+
+	// gotta love the indentetion pyramids!
+	for _, node := range nodes {
+		node := node
+		if nodeIsMaster(&node) {
+			for _, condition := range node.Status.Conditions {
+				if condition.Type == v1.NodeReady {
+					if condition.Status == v1.ConditionFalse {
+						return false
+					}
+				}
+			}
+		}
+	}
+
+	return true
 }
 
 // Removes the node from the shared state
