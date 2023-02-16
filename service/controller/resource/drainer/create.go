@@ -329,33 +329,33 @@ func (r *Resource) drainNode(nodeName string,
 
 }
 
-// Drains a node in a blocking manner
-func (r *Resource) drainNodeBlocking(
-	nodeName string,
-	typeOfNode string,
-	ctx context.Context,
-	awsCluster infrastructurev1alpha3.AWSCluster,
-	shutdownHelper drain.Helper,
-	node v1.Node, k8sClient kubernetes.Interface,
-	drainerConfig v1alpha1.DrainerConfig) error {
+// // Drains a node in a blocking manner
+// func (r *Resource) drainNodeBlocking(
+// 	nodeName string,
+// 	typeOfNode string,
+// 	ctx context.Context,
+// 	awsCluster infrastructurev1alpha3.AWSCluster,
+// 	shutdownHelper drain.Helper,
+// 	node v1.Node, k8sClient kubernetes.Interface,
+// 	drainerConfig v1alpha1.DrainerConfig) error {
 
-	// Cordon the node
-	if err := r.cordon(ctx, awsCluster, shutdownHelper, node, typeOfNode); err != nil {
-		return err
-	}
+// 	// Cordon the node
+// 	if err := r.cordon(ctx, awsCluster, shutdownHelper, node, typeOfNode); err != nil {
+// 		return err
+// 	}
 
-	// Drain the node sync
-	err := r.drainNode(nodeName, typeOfNode, ctx, awsCluster, shutdownHelper, node, k8sClient, drainerConfig)
+// 	// Drain the node sync
+// 	err := r.drainNode(nodeName, typeOfNode, ctx, awsCluster, shutdownHelper, node, k8sClient, drainerConfig)
 
-	// In case of error mark the node in a timeout status so that it gets removed
-	if err != nil {
-		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
-	}
+// 	// In case of error mark the node in a timeout status so that it gets removed
+// 	if err != nil {
+// 		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
+// 	}
 
-	// In case of success mark the node as sucessfully drained
-	return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
+// 	// In case of success mark the node as sucessfully drained
+// 	return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
 
-}
+// }
 
 // Drain a node
 func (r *Resource) drainNodeAsync(
