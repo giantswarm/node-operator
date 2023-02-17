@@ -59,8 +59,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting tenant cluster node from Kubernetes API")
 
-		n := key.NodeNameFromDrainerConfig(drainerConfig)
-		err := k8sClient.CoreV1().Nodes().Delete(ctx, n, metav1.DeleteOptions{})
+		nodeName := key.NodeNameFromDrainerConfig(drainerConfig)
+
+		// make sure the entry in the state is removed
+		r.removeNodeFromState(nodeName)
+
+		err := k8sClient.CoreV1().Nodes().Delete(ctx, nodeName, metav1.DeleteOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete tenant cluster node from Kubernetes API")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster API is not available")
