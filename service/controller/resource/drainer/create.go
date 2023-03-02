@@ -193,7 +193,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 					// Otherwise try again to drain the node
 					draining <- drainingError
 
-					// Sebastian: I like the number 7 :D
+					// We need to pick a number here.
+					// Unfortunately there is no right amount of time to wait for the
+					// operation to complete. In various tests it seems a value
+					// between 10 and 5 is performing well. So picking the average and floring it
 				case <-time.After(7 * time.Second):
 					// we want to wait only for a max of N seconds, otherwise continue
 				}
@@ -324,7 +327,7 @@ func nodeIsMaster(node *v1.Node) bool {
 			return true
 		}
 
-		// Not sure where this comes from...
+		// Some master nodes seem to have this label
 		if key == "node.kubernetes.io/master" {
 			return true
 		}
