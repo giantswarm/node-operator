@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Use Kubernetes Events on `AWSCluster` CR for draining status updates.
+- Concurrent execution of drainining to make sure the operator can handle multiple nodes going down for multiple clusters running in the same MC
 
 ### Changed
 
