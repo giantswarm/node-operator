@@ -95,7 +95,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// ====================================================================
 	// Cordon and drain the node
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "cordoning tenant cluster node")
 
 		// get the list of nodes
 		nodes, err := k8sClient.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
@@ -193,26 +192,43 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 					// Otherwise try again to drain the node
 					draining <- drainingError
 
+					// IMPORTANT!
+					// We need to do an eager return here, so that we don't fall back in the SPOT instance case
+					return nil
+
+					// -------------------------------------------------------------------
 					// We need to pick a number here.
 					// Unfortunately there is no right amount of time to wait for the
 					// operation to complete. In various tests it seems a value
 					// between 10 and 5 is performing well. So picking the average and floring it
 				case <-time.After(7 * time.Second):
 					// we want to wait only for a max of N seconds, otherwise continue
+					// IMPORTANT!
+					// We need to do an eager return here, so that we don't fall back in the SPOT instance case
+					return nil
 				}
 
 			} else {
 
 				// drain async and add the status to the state
-				// Important run in a different go routine
+				// Important to run in a different go routine
 				go r.drainNodeAsync(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
 
-			}
-			break
-		}
-	}
+				// IMPORTANT!
+				// We need to do an eager return here, so that we don't fall back in the SPOT instance case
+				// Unfortunately we do not know what kind of instance we are trying to drain
+				// so we don't have a lot of options
+				return nil
 
-	return nil
+			}
+		}
+
+		// if we get here it means we could not find the instance in the list of nodes
+		// this can happen for example if an instance is SPOT and therefore AWS just deletes it
+		r.logger.LogCtx(ctx, "level", "warn", "message", "Could not find the instance. Setting the draining status to: timed out")
+		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
+
+	}
 }
 
 // Removes the node from the shared state
@@ -240,6 +256,9 @@ func (r *Resource) cordon(ctx context.Context,
 	awsCluster infrastructurev1alpha3.AWSCluster,
 	shutdownHelper drain.Helper,
 	node v1.Node, typeOfNode string) error {
+
+	// Signal that we started cordoning the node
+	r.logger.LogCtx(ctx, "level", "info", "message", "cordoning tenant cluster node")
 
 	// Cordon the node
 	if err := drain.RunCordonOrUncordon(&shutdownHelper, &node, true); err != nil {
