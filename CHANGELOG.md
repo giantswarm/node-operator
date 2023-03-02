@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.1] - 2023-03-02
 
+- Handling of Spot instances which have already been deleted from the cluster, but the DrainingConfigs are still present
+
 ### Added
 
 - Use Kubernetes Events on `AWSCluster` CR for draining status updates.
