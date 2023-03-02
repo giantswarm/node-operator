@@ -150,18 +150,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 			typeOfNode := "worker"
-			// In case of master nodes, just delete the pods, and don't evict them
+			// In case of master nodes, adjust the timeouts and make them shorter
 			if nodeIsMaster(&node) {
-
-				// if we are draining a master node and there are some NonReady masters then wait a bit
-				// we do not want to run the risk of draining more than 1 master at the time.
-				// WARNING: this should be take care of in the aws-operator!
-				// However doing so would require a full blown release.
-				// The node operator instead can be released without the customers having to upgrade
-				if !r.mastersAreReady(nodes.Items) {
-					r.logger.LogCtx(ctx, "level", "info", "message", "At least one master is NotReady. Waiting for it to become ready...")
-					return nil
-				}
 
 				// 45 seconds pods termination grace period
 				nodeShutdownHelper.GracePeriodSeconds = 45
@@ -172,11 +162,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				// Set type to master
 				typeOfNode = "master"
 
-				// Drain sequentially
-				//return r.drainNodeBlocking(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
-			} //else {
-			// In case it's a worker node, there are possibly multiple node pools with
-			// nodes rolling, so we need to proceed in parallel
+			}
 
 			// Check if:
 			// - the node was already being drained
@@ -204,10 +190,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 						return nil
 					}
 
-					// Otherwise try again
+					// Otherwise try again to drain the node
 					draining <- drainingError
 
-					// Sebastian: I like the number 7
+					// Sebastian: I like the number 7 :D
 				case <-time.After(7 * time.Second):
 					// we want to wait only for a max of N seconds, otherwise continue
 				}
@@ -219,32 +205,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				go r.drainNodeAsync(nodeName, typeOfNode, ctx, *awsCluster, nodeShutdownHelper, node, k8sClient, drainerConfig)
 
 			}
-			//}
 			break
 		}
 	}
 
 	return nil
-}
-
-// Checks whether the masters are all ready
-func (r *Resource) mastersAreReady(nodes []v1.Node) bool {
-
-	// gotta love the indentetion pyramids!
-	for _, node := range nodes {
-		node := node
-		if nodeIsMaster(&node) {
-			for _, condition := range node.Status.Conditions {
-				if condition.Type == v1.NodeReady {
-					if condition.Status == v1.ConditionFalse {
-						return false
-					}
-				}
-			}
-		}
-	}
-
-	return true
 }
 
 // Removes the node from the shared state
@@ -311,16 +276,6 @@ func (r *Resource) drainNode(nodeName string,
 
 	}
 
-	// // if we got here it means we have got no errors and the node is successfully drained
-	// // Set the drainer status in the node so that the aws-operator can proceed with the deletion
-	// // of the node
-	// drainerConfig.Status.Conditions = append(drainerConfig.Status.Conditions, drainerConfig.Status.NewDrainedCondition())
-
-	// // Now update the node status, in case of error updating the node, return it
-	// if err := r.client.Status().Update(ctx, &drainerConfig); err != nil {
-	// 	return microerror.Mask(err)
-	// }
-
 	// Emit the events that the draining was successful
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("set drainer config status of tenant cluster %s node to drained condition", typeOfNode))
 	r.event.Info(ctx, &awsCluster, "DrainingSucceeded", fmt.Sprintf("drained %s node %s successfully", typeOfNode, node.GetName()))
@@ -328,34 +283,6 @@ func (r *Resource) drainNode(nodeName string,
 	return nil
 
 }
-
-// // Drains a node in a blocking manner
-// func (r *Resource) drainNodeBlocking(
-// 	nodeName string,
-// 	typeOfNode string,
-// 	ctx context.Context,
-// 	awsCluster infrastructurev1alpha3.AWSCluster,
-// 	shutdownHelper drain.Helper,
-// 	node v1.Node, k8sClient kubernetes.Interface,
-// 	drainerConfig v1alpha1.DrainerConfig) error {
-
-// 	// Cordon the node
-// 	if err := r.cordon(ctx, awsCluster, shutdownHelper, node, typeOfNode); err != nil {
-// 		return err
-// 	}
-
-// 	// Drain the node sync
-// 	err := r.drainNode(nodeName, typeOfNode, ctx, awsCluster, shutdownHelper, node, k8sClient, drainerConfig)
-
-// 	// In case of error mark the node in a timeout status so that it gets removed
-// 	if err != nil {
-// 		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
-// 	}
-
-// 	// In case of success mark the node as sucessfully drained
-// 	return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
-
-// }
 
 // Drain a node
 func (r *Resource) drainNodeAsync(
