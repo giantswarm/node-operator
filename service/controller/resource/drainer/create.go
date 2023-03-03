@@ -225,8 +225,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		// if we get here it means we could not find the instance in the list of nodes
 		// this can happen for example if an instance is SPOT and therefore AWS just deletes it
-		r.logger.LogCtx(ctx, "level", "warn", "message", "Could not find the instance. Setting the draining status to: timed out")
-		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewTimeoutCondition(), drainerConfig, k8sClient)
+		r.logger.LogCtx(ctx, "level", "warn", "message", "Could not find the instance. Setting the draining status to: drained")
+		return r.updateDrainerStatus(ctx, drainerConfig.Status.NewDrainedCondition(), drainerConfig, k8sClient)
 
 	}
 }

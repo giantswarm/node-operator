@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.2] - 2023-03-02
+## [2.0.3] - 2023-03-02
+
+- Changed the DrainingConfig status to `Drained` instead of `Timeout`
 
 ## [2.0.2] - 2023-03-02
 
