@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Make PSP rendering conditional for 1.25+ compatibility
+
 ## [2.0.3] - 2023-03-03
 
 ## [2.0.3] - 2023-03-02
