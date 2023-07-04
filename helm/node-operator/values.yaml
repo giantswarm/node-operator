@@ -7,6 +7,9 @@ project:
   branch: "[[ .Branch ]]"
   commit: "[[ .SHA ]]"
 
+provider:
+  kind: "aws"
+
 pod:
   user:
     id: 1000
@@ -32,3 +35,10 @@ podSecurityContext:
 securityContext:
   seccompProfile:
     type: RuntimeDefault
+
+serviceMonitor:
+  enabled: true
+  # -- (duration) Prometheus scrape interval.
+  interval: "60s"
+  # -- (duration) Prometheus scrape timeout.
+  scrapeTimeout: "45s"
