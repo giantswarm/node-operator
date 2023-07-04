@@ -61,6 +61,14 @@
                 }
             }
         },
+        "provider": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                }
+            }
+        },
         "registry": {
             "type": "object",
             "properties": {
@@ -103,6 +111,20 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "serviceMonitor": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "interval": {
+                    "type": "string"
+                },
+                "scrapeTimeout": {
+                    "type": "string"
                 }
             }
         }
