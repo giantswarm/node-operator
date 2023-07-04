@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2023-07-04
+
 ### Changed
 
 - Add Service Monitor.
@@ -100,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Push `node-operator` chart into `control-plane` catalog instead of quay.io.
 - Push `node-operator` app CRs into `<provider>-app-collection` repository.
 
-[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.0.3...HEAD
+[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/giantswarm/node-operator/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/giantswarm/node-operator/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/giantswarm/node-operator/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/giantswarm/node-operator/compare/v1.4.2...v2.0.1
