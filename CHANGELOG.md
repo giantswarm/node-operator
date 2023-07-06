@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added required values for pss policies.
 
+### Changed
+
+- Make PSP rendering conditional for 1.25+ compatibility
+
+## [2.1.0] - 2023-07-04
+
+### Changed
+
+- Add Service Monitor.
+
 ## [2.0.3] - 2023-03-03
 
 ## [2.0.3] - 2023-03-02
@@ -100,7 +110,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Push `node-operator` chart into `control-plane` catalog instead of quay.io.
 - Push `node-operator` app CRs into `<provider>-app-collection` repository.
 
-[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.0.3...HEAD
+[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/giantswarm/node-operator/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/giantswarm/node-operator/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/giantswarm/node-operator/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/giantswarm/node-operator/compare/v1.4.2...v2.0.1
