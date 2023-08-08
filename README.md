@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/node-operator.svg?&style=shield&circle-token=32ab58d8225896a5c1cf27c57f1b2481a60b2e3e)](https://circleci.com/gh/giantswarm/node-operator)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/node-operator/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/node-operator/tree/master)
 
 # node operator
 
