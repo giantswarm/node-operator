@@ -13,7 +13,7 @@ require (
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
 	github.com/giantswarm/tenantcluster/v5 v5.0.0
-	github.com/spf13/viper v1.15.0
+	github.com/spf13/viper v1.17.0
 	k8s.io/api v0.26.1
 	k8s.io/apimachinery v0.26.1
 	k8s.io/client-go v0.26.1
@@ -126,14 +126,14 @@ replace (
 	github.com/containernetworking/cni => github.com/containernetworking/cni v0.8.1
 	github.com/coreos/etcd v3.3.13+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.13.0
+	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.25.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
-	github.com/hashicorp/consul => github.com/hashicorp/consul v1.10.10
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.0
-	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.18
-	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.2.0
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.8.3
-	github.com/pkg/sftp => github.com/pkg/sftp v1.13.4
+	github.com/hashicorp/consul => github.com/hashicorp/consul v1.16.2
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.2
+	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.26
+	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.5.2
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.3
+	github.com/pkg/sftp => github.com/pkg/sftp v1.13.6
 	github.com/valyala/fasthttp v1.6.0 => github.com/valyala/fasthttp v1.38.0
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.5
 )
