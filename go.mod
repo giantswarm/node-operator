@@ -128,7 +128,7 @@ replace (
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.25.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
-	github.com/hashicorp/consul => github.com/hashicorp/consul v1.10.10
+	github.com/hashicorp/consul => github.com/hashicorp/consul v1.17.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.3
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.2.0
