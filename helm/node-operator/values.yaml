@@ -7,6 +7,9 @@ project:
   branch: "[[ .Branch ]]"
   commit: "[[ .SHA ]]"
 
+provider:
+  kind: "aws"
+
 pod:
   user:
     id: 1000
@@ -25,10 +28,22 @@ registry:
 
 # Add seccomp to pod security context
 podSecurityContext:
+  runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
 
 # Add seccomp to container security context
 securityContext:
+  allowPrivilegeEscalation: false
   seccompProfile:
     type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL
+
+serviceMonitor:
+  enabled: true
+  # -- (duration) Prometheus scrape interval.
+  interval: "60s"
+  # -- (duration) Prometheus scrape timeout.
+  scrapeTimeout: "45s"
