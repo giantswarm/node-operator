@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster/v5/pkg/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v6/pkg/tenantcluster"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	event "github.com/giantswarm/node-operator/service/recorder"
