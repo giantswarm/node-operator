@@ -133,7 +133,7 @@ replace (
 	github.com/containernetworking/cni => github.com/containernetworking/cni v0.8.1
 	github.com/coreos/etcd v3.3.13+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.13.0
+	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.25.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/consul => github.com/hashicorp/consul v1.17.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.3
