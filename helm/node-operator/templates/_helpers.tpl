@@ -20,8 +20,8 @@ Common labels
 {{ include "labels.selector" . }}
 app.kubernetes.io/name: {{ include "name" . | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.giantswarm.io/branch: {{ .Values.project.branch | quote }}
-app.giantswarm.io/commit: {{ .Values.project.commit | quote }}
+application.giantswarm.io/branch: {{ .Values.project.branch | quote }}
+application.giantswarm.io/commit: {{ .Values.project.commit | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- $regexToFind := printf "- provider:\\s%s\n\\s*team:\\s(.+)" .Values.provider.kind }}
