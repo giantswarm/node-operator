@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2024-03-27
+
 ### Added
 
 - Add global.podSecurityStandards.enforced value for PSS migration.
@@ -118,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Push `node-operator` chart into `control-plane` catalog instead of quay.io.
 - Push `node-operator` app CRs into `<provider>-app-collection` repository.
 
-[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/giantswarm/node-operator/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/giantswarm/node-operator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/giantswarm/node-operator/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/giantswarm/node-operator/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/giantswarm/node-operator/compare/v2.0.2...v2.0.3
