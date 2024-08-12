@@ -141,5 +141,5 @@ replace (
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.18
 	github.com/pkg/sftp => github.com/pkg/sftp v1.13.6
 	github.com/valyala/fasthttp v1.6.0 => github.com/valyala/fasthttp v1.38.0
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.7.4
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.8.0
 )
