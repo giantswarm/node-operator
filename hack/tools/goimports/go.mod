@@ -2,7 +2,7 @@ module github.com/giantswarm/node-operator/hack/tools/goimports
 
 go 1.22.0
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require golang.org/x/tools v0.27.0
 
