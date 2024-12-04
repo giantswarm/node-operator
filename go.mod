@@ -135,7 +135,7 @@ replace (
 	github.com/getsentry/sentry-go => github.com/getsentry/sentry-go v0.30.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/consul => github.com/hashicorp/consul v1.20.1
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.12.0
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.13.0
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.7.2
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.22
