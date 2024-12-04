@@ -2,7 +2,7 @@ module github.com/giantswarm/node-operator
 
 go 1.21
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require (
 	github.com/giantswarm/apiextensions/v6 v6.6.0
