@@ -7,7 +7,7 @@ toolchain go1.23.5
 require (
 	github.com/giantswarm/apiextensions/v6 v6.6.0
 	github.com/giantswarm/certs/v4 v4.0.0
-	github.com/giantswarm/errors v0.3.0
+	github.com/giantswarm/errors v0.3.1
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/microendpoint v1.1.1
 	github.com/giantswarm/microerror v0.4.1
