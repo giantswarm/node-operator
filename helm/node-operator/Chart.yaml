@@ -1,9 +1,10 @@
-apiVersion: "v1"
+apiVersion: "v2"
 name: "node-operator"
 description: "Helm chart for node-operator."
 home: "https://github.com/giantswarm/node-operator"
-version: "[[ .Version ]]"
-appVersion: "[[ .AppVersion ]]"
+version: "0.0.1-dev"
+appVersion: "0.0.1-dev"
+icon: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
 annotations:
   application.giantswarm.io/owners: |
     - provider: aws
@@ -13,3 +14,9 @@ annotations:
     - provider: kvm
       team: rocket
   config.giantswarm.io/version: 1.x.x
+  ui.giantswarm.io/logo: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
+restrictions:
+  clusterSingleton: true
+  fixedNamespace: kube-system
+  gpuInstances: false
+  compatibleProviders: [aws, azure, kvm]

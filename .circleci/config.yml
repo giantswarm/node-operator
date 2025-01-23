@@ -29,6 +29,7 @@ workflows:
       - architect/push-to-app-catalog:
           context: architect
           name: push-to-app-catalog-master
+          executor: app-build-suite
           app_catalog: control-plane-catalog
           app_catalog_test: control-plane-test-catalog
           chart: node-operator
@@ -43,6 +44,7 @@ workflows:
       - architect/push-to-app-catalog:
           context: architect
           name: push-to-app-catalog-pr
+          executor: app-build-suite
           app_catalog: control-plane-catalog
           app_catalog_test: control-plane-test-catalog
           chart: node-operator
@@ -50,7 +52,7 @@ workflows:
             - push-to-registries
           filters:
             branches:
-              ignore: master
+              only: /.*/
 
       - architect/push-to-app-collection:
           context: architect

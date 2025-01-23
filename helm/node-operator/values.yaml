@@ -1,7 +1,9 @@
+serviceType: managed
+
 image:
   registry: quay.io
   name: "giantswarm/node-operator"
-  tag: "[[ .Version ]]"
+  tag: "0.0.1-dev"
 
 project:
   branch: "[[ .Branch ]]"
