@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
-	clientv1 "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -34,7 +33,7 @@ func New(c Config) Interface {
 		)
 	}
 	return &Recorder{
-		eventBroadcaster.NewRecorder(c.K8sClient.Scheme(), clientv1.EventSource{Component: c.Component}),
+		eventBroadcaster.NewRecorder(c.K8sClient.Scheme(), corev1.EventSource{Component: c.Component}),
 	}
 }
 
