@@ -134,7 +134,7 @@ replace (
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.13.3
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.7.4
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.11.3
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.11.4
 	github.com/pkg/sftp => github.com/pkg/sftp v1.13.9
 	github.com/valyala/fasthttp v1.6.0 => github.com/valyala/fasthttp v1.38.0
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.10.2
