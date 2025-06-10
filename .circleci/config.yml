@@ -51,29 +51,3 @@ workflows:
           filters:
             branches:
               ignore: master
-
-      - architect/push-to-app-collection:
-          context: architect
-          name: push-to-aws-app-collection
-          app_name: node-operator
-          app_collection_repo: aws-app-collection
-          requires:
-            - push-to-app-catalog-master
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-
-      - architect/push-to-app-collection:
-          context: architect
-          name: push-to-azure-app-collection
-          app_name: node-operator
-          app_collection_repo: azure-app-collection
-          requires:
-            - push-to-app-catalog-master
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
