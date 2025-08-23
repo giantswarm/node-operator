@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix linting issues.
 - Go: Update dependencies.
+- Go: Downgrade Cluster API to v1.10.5.
 
 ## [2.3.0] - 2024-03-27
 
